@@ -19,7 +19,7 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
@@ -28,5 +28,13 @@ public:
 
 public:
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = FSMComponent)
+		class UEnemyFSM* fsm;
+
+	UPROPERTY(EditAnywhere)
+		class UStaticMeshComponent* rightHand;
+
+	UPROPERTY(EditAnywhere)
+		class UStaticMeshComponent* leftHand;
 
 };

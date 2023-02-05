@@ -64,4 +64,7 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = FSM)
 		float searchRange = 500;
+	
+	UPROPERTY(EditAnywhere, Category = FSM)
+		float attackSpeed = 0;
 };

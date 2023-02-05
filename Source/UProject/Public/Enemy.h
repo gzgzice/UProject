@@ -32,9 +32,17 @@ public:
 		class UEnemyFSM* fsm;
 
 	UPROPERTY(EditAnywhere)
-		class UStaticMeshComponent* rightHand;
+		class UChildActorComponent* rightChild;
 
 	UPROPERTY(EditAnywhere)
-		class UStaticMeshComponent* leftHand;
+		class UChildActorComponent* leftChild;
+
+	UPROPERTY(EditAnywhere, Category = FSMComponent)
+		TSubclassOf<class ARightHand> rightHand;
+
+	UPROPERTY(EditAnywhere, Category = FSMComponent)
+		TSubclassOf<class ALeftHand> leftHand;
+
+
 
 };

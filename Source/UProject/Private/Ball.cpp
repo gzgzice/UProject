@@ -19,6 +19,7 @@ ABall::ABall()
 	
 	ball = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Ball"));
 	ball->SetupAttachment(sphere);
+	ball->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Game/FPWeapon/Mesh/FirstPersonProjectileMesh.FirstPersonProjectileMesh'"));
 	if (tempMesh.Succeeded())

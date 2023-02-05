@@ -6,6 +6,8 @@
 #include <Kismet/GameplayStatics.h>
 #include "Ball.h"
 #include "Enemy.h"
+#include "RightHand.h"
+#include "LeftHand.h"
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -24,6 +26,7 @@ void UEnemyFSM::BeginPlay()
 	player = Cast<AVRPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), AVRPlayer::StaticClass()));
 	enemy = Cast<AEnemy>(GetOwner());
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
+
 
 }
 
@@ -85,7 +88,9 @@ void UEnemyFSM::MoveState()
 
 void UEnemyFSM::AttackState()
 {
-
+	attackSpeed += GetWorld()->GetDeltaSeconds();
+	FVector P = FMath::Lerp(enemy->rightChild->GetComponentLocation(), ball->GetActorLocation(), attackSpeed);
+	enemy->rightChild->SetWorldLocation(P);
 }
 
 void UEnemyFSM::ChangeState(EEnemyState afterState)
@@ -96,17 +101,17 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 	{
 		case EEnemyState::Search:
 		{
-
+			UE_LOG(LogTemp, Warning, TEXT("SEARCH"));
 		}
 		break;
 		case EEnemyState::Move:
 		{
-
+			UE_LOG(LogTemp, Warning, TEXT("MOVE"));
 		}
 		break;
 		case EEnemyState::Attack:
 		{
-
+			UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
 		}
 		break;
 	}

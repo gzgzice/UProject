@@ -1,0 +1,46 @@
+// Fill out your copyright notice in the Description page of Project Settings.
+
+
+#include "LeftHand.h"
+#include <Components/BoxComponent.h>
+#include <Components/StaticMeshComponent.h>
+
+// Sets default values
+ALeftHand::ALeftHand()
+{
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	compBox = CreateDefaultSubobject<UBoxComponent>(TEXT("LeftHand"));
+	SetRootComponent(compBox);
+	compBox->SetRelativeLocation(FVector(90, 0, 140));
+	compBox->SetRelativeRotation(FRotator(0, 90, 0));
+	compBox->SetRelativeScale3D(FVector(0.3f));
+	compBox->SetBoxExtent(FVector(50));
+
+	compMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
+	compMesh->SetupAttachment(compBox);
+	compMesh->SetRelativeLocation(FVector(0,0,-50));
+	compMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh> tempChild(TEXT("/Script/Engine.StaticMesh'/Game/StarterContent/Shapes/Shape_Cube.Shape_Cube'"));
+	if (tempChild.Succeeded())
+	{
+		compMesh -> SetStaticMesh(tempChild.Object);
+	}
+}
+
+// Called when the game starts or when spawned
+void ALeftHand::BeginPlay()
+{
+	Super::BeginPlay();
+	
+}
+
+// Called every frame
+void ALeftHand::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
+}
+

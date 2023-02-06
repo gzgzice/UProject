@@ -43,6 +43,8 @@ public:
 	UPROPERTY(EditAnywhere, Category = FSMComponent)
 		TSubclassOf<class ALeftHand> leftHand;
 
+		
+
 
 
 };

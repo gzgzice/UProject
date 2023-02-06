@@ -26,8 +26,8 @@ public:
 public:
 
 	UPROPERTY(Editanywhere)
-	class USphereComponent* sphere;
+	class USphereComponent* ball;
 
 	UPROPERTY(EditAnywhere)
-	class UStaticMeshComponent* ball;
+	class UStaticMeshComponent* mesh;
 };

@@ -3,6 +3,7 @@
 
 #include "Enemy.h"
 #include "EnemyFSM.h"
+#include <Components/CapsuleComponent.h>
 #include <Components/StaticMeshComponent.h>
 #include <Components/BoxComponent.h>
 #include "RightHand.h"
@@ -14,6 +15,8 @@ AEnemy::AEnemy()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	
+	GetCapsuleComponent()->SetCollisionProfileName(TEXT("EnemyPreset"));
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));

@@ -32,7 +32,7 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-private:
+public:
 
 	void IdleState();
 	void SearchState();
@@ -55,6 +55,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		class ABall* ball;
 
+	UPROPERTY(EditAnywhere)
+		class AHand* hand;
+
 public:
 
 	UPROPERTY(EditAnywhere, Category = FSM)
@@ -67,4 +70,7 @@ public:
 	
 	UPROPERTY(EditAnywhere, Category = FSM)
 		float attackSpeed = 0;
+
+
+	
 };

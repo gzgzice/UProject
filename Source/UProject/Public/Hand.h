@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "RightHand.generated.h"
+#include "Hand.generated.h"
 
 UCLASS()
-class UPROJECT_API ARightHand : public AActor
+class UPROJECT_API AHand : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ARightHand();
+	AHand();
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,11 +24,13 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 public:
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UBoxComponent* compBox;
+	UPROPERTY(EditAnywhere)
+		class UBoxComponent* hand;
 
 	UPROPERTY(EditAnywhere)
 		class UStaticMeshComponent* compMesh;
+
+public:
+	void SetActive(bool isActive);
 
 };

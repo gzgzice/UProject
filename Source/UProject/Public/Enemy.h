@@ -28,20 +28,19 @@ public:
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = FSMComponent)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FSMComponent)
 		class UEnemyFSM* fsm;
 
-	UPROPERTY(EditAnywhere)
-		class UChildActorComponent* rightChild;
-
-	UPROPERTY(EditAnywhere)
-		class UChildActorComponent* leftChild;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+		class UChildActorComponent* hand;
 
 	UPROPERTY(EditAnywhere, Category = FSMComponent)
-		TSubclassOf<class ARightHand> rightHand;
+		TSubclassOf<class AHand> child;
 
-	UPROPERTY(EditAnywhere, Category = FSMComponent)
-		TSubclassOf<class ALeftHand> leftHand;
+public:
+	
+	
+
 
 		
 

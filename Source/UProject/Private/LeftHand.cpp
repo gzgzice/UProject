@@ -17,6 +17,7 @@ ALeftHand::ALeftHand()
 	compBox->SetRelativeRotation(FRotator(0, 90, 0));
 	compBox->SetRelativeScale3D(FVector(0.3f));
 	compBox->SetBoxExtent(FVector(50));
+	compBox->SetCollisionProfileName(TEXT("HandPreset"));
 
 	compMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	compMesh->SetupAttachment(compBox);

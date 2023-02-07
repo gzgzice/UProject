@@ -6,8 +6,7 @@
 #include <Kismet/GameplayStatics.h>
 #include "Ball.h"
 #include "Enemy.h"
-#include "RightHand.h"
-#include "LeftHand.h"
+#include "Hand.h"
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -15,6 +14,7 @@ UEnemyFSM::UEnemyFSM()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+
 }
 
 
@@ -26,8 +26,9 @@ void UEnemyFSM::BeginPlay()
 	player = Cast<AVRPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), AVRPlayer::StaticClass()));
 	enemy = Cast<AEnemy>(GetOwner());
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
-
-
+	hand = Cast<AHand>(UGameplayStatics::GetActorOfClass(GetWorld(), AHand::StaticClass()));
+	
+	
 }
 
 
@@ -56,6 +57,7 @@ void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 void UEnemyFSM::IdleState()
 {
 	bool bComplete = FlowTime(idleDelayTIme);
+	enemy->hand->SetActive(false);
 
 	if (bComplete)
 	{
@@ -83,14 +85,14 @@ void UEnemyFSM::SearchState()
 
 void UEnemyFSM::MoveState()
 {
-
+ //point
 }
 
 void UEnemyFSM::AttackState()
 {
 	attackSpeed += GetWorld()->GetDeltaSeconds();
-	FVector P = FMath::Lerp(enemy->rightChild->GetComponentLocation(), ball->GetActorLocation(), attackSpeed);
-	enemy->rightChild->SetWorldLocation(P);
+	FVector P = FMath::Lerp(enemy->hand->GetComponentLocation(), ball->GetActorLocation(), attackSpeed);
+	enemy->hand->SetWorldLocation(P);
 }
 
 void UEnemyFSM::ChangeState(EEnemyState afterState)
@@ -99,6 +101,10 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 
 	switch (state)
 	{
+		case EEnemyState::Idle:
+		{
+			UE_LOG(LogTemp, Warning, TEXT("IDLE"));
+		}
 		case EEnemyState::Search:
 		{
 			UE_LOG(LogTemp, Warning, TEXT("SEARCH"));
@@ -106,11 +112,13 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 		break;
 		case EEnemyState::Move:
 		{
+			enemy->hand->SetActive(true);
 			UE_LOG(LogTemp, Warning, TEXT("MOVE"));
 		}
 		break;
 		case EEnemyState::Attack:
 		{
+			
 			UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
 		}
 		break;

@@ -4,11 +4,10 @@
 #include "Enemy.h"
 #include "EnemyFSM.h"
 #include <Components/CapsuleComponent.h>
-#include <Components/StaticMeshComponent.h>
-#include <Components/BoxComponent.h>
-#include "RightHand.h"
 #include <Components/ChildActorComponent.h>
-#include "LeftHand.h"
+#include <Engine/SkeletalMesh.h>
+#include "Hand.h"
+
 
 // Sets default values
 AEnemy::AEnemy()
@@ -21,11 +20,8 @@ AEnemy::AEnemy()
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
 
-	rightChild = CreateDefaultSubobject<UChildActorComponent>(TEXT("RightHand"));
-	rightChild->SetupAttachment(GetMesh());
-	leftChild =CreateDefaultSubobject<UChildActorComponent>(TEXT("LeftHand"));
-	leftChild->SetupAttachment(GetMesh());
-
+	hand = CreateDefaultSubobject<UChildActorComponent>(TEXT("Hand"));
+	hand->SetupAttachment(GetMesh(), TEXT("HandPos"));
 
 	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempSkel(TEXT("/Script/Engine.SkeletalMesh'/Engine/Tutorial/SubEditors/TutorialAssets/Character/TutorialTPP.TutorialTPP'"));
 	if (tempSkel.Succeeded())
@@ -33,20 +29,14 @@ AEnemy::AEnemy()
 		GetMesh()->SetSkeletalMesh(tempSkel.Object);
 	}
 
-	ConstructorHelpers::FClassFinder<ARightHand> tempRH(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/BP_RightHand.BP_RightHand_C'"));
-	if (tempRH.Succeeded())
+	ConstructorHelpers::FClassFinder<AHand> tempHand(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/BP_Hand.BP_Hand_C'"));
+	if (tempHand.Succeeded())
 	{
-		rightHand = tempRH.Class;
+		child = tempHand.Class;
 	}
 
-	ConstructorHelpers::FClassFinder<ALeftHand> tempLH(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/BP_LeftHand.BP_LeftHand_C'"));
-	if (tempLH.Succeeded())
-	{
-		leftHand = tempLH.Class;
-	}
 
-	rightChild->SetChildActorClass(rightHand);
-	leftChild->SetChildActorClass(leftHand);
+	hand->SetChildActorClass(child);
 	fsm = CreateDefaultSubobject<UEnemyFSM>(TEXT("FSM"));
 }
 

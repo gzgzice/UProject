@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "HeadMountedDisplayFunctionLibrary.h"
 #include "GameFramework/Character.h"
 #include "VRPlayer.generated.h"
 
@@ -25,5 +26,50 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+public:
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class UCameraComponent* Cam;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class UMotionControllerComponent* rightMotionController;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class UMotionControllerComponent* leftMotionController;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class UStaticMeshComponent* headMesh;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class USkeletalMeshComponent* leftHand;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class USkeletalMeshComponent* rightHand;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class UTextRenderComponent* leftLog;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class UTextRenderComponent* rightLog;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Setting | Component")
+		TEnumAsByte <enum EHMDTrackingOrigin::Type> trackOrigin;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
+		class UInputMappingContext* myMapping;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
+		class UInputAction* leftActionX;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
+		float fireDistance = 50.0f;
+
+private:
+	void OnLeftActionX();
+	void ReleaseActionX();
+	void DrawLocationLine();
+
+	bool bIsDraw = false;
 
 };

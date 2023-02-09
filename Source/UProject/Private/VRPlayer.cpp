@@ -61,8 +61,12 @@ AVRPlayer::AVRPlayer()
 
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
+	bUseControllerRotationRoll = true;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
+	originPos = rightMotionController->GetComponentLocation();
+	UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), originPos.X, originPos.Y, originPos.Z);
 }
 
 // Called when the game starts or when spawned
@@ -88,6 +92,23 @@ void AVRPlayer::Tick(float DeltaTime)
 	{
 		DrawLocationLine();
 	}
+
+	if (bIsFire)
+	{
+		//FVector handForward = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::Y);
+		FVector p0 = rightMotionController->GetRelativeLocation()/* + handForward*/;
+		FVector d = rightMotionController->GetRelativeLocation() * axis;
+		FVector vt = d * speed * DeltaTime;
+
+		rightMotionController->SetRelativeLocation(p0 + vt);
+
+		//FVector rightHandLoc = rightMotionController->GetComponentLocation();
+		//FVector dir = originPos - rightHandLoc;
+		//if (dir.Length() > goalDir)
+		//{
+		//	rightMotionController->SetRelativeLocation(originPos);
+		//}
+	}
 }
 
 // Called to bind functionality to input
@@ -101,6 +122,9 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	{
 		enhancedInputComponent->BindAction(leftActionX, ETriggerEvent::Started, this, &AVRPlayer::OnLeftActionX);
 		enhancedInputComponent->BindAction(leftActionX, ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionX);
+		enhancedInputComponent->BindAction(RightThumbStick, ETriggerEvent::Triggered, this, &AVRPlayer::RotateAxis);
+		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Triggered, this, &AVRPlayer::FireRightHand);
+		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Completed, this, &AVRPlayer::FireRightHand);
 	}
 }
 
@@ -144,7 +168,42 @@ void AVRPlayer::DrawLocationLine()
 	FVector pos2 = GetActorForwardVector() * 500;
 	FVector endLoc = startLoc + pos1 + pos2;
 
-	//DrawDebugLine(GetWorld(), startLoc, endLoc, FColor::Cyan, false, -1, 0, 1);
 	DrawDebugSphere(GetWorld(), endLoc,
-		fireDistance, 30, FColor::Cyan, false, -1, 0, 1);
+	fireDistance, 30, FColor::Cyan, false, -1, 0, 1);
 }
+
+void AVRPlayer::RotateAxis(const FInputActionValue& value)
+{
+	float Axis = value.Get<float>();
+
+	AddControllerYawInput(Axis);
+}
+
+void AVRPlayer::FireRightHand(const FInputActionValue& value)
+{
+	axis = value.Get<float>();
+	FString msg = FString::Printf(TEXT("%f"), axis);
+	rightLog->SetText(FText::FromString(msg));
+
+	bIsFire = true;
+
+	//FVector rightHandLoc = rightMotionController->GetComponentLocation();
+	//FVector dir = originPos - rightHandLoc;
+	//if (dir.Length() > goalDir)
+	//{
+	//	rightMotionController->SetRelativeLocation(originPos);
+	//}
+}
+
+//void AVRPlayer::ReturnRightHand()
+//{
+//	bIsFire = false;
+//
+//	FVector pos = FMath::Lerp(rightHandLoc, originPos, 1.0f);
+//	rightMotionController->SetRelativeLocation(originPos);
+//}
+
+//void AVRPlayer::MoveAction(float deltatime)
+//{
+//
+//}

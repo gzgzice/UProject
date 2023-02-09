@@ -31,15 +31,24 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FSMComponent)
 		class UEnemyFSM* fsm;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-		class UChildActorComponent* hand;
+// 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+// 		class UChildActorComponent* hand;
+// 
+// 	UPROPERTY(EditAnywhere, Category = FSMComponent)
+// 		TSubclassOf<class AHand> child;
 
-	UPROPERTY(EditAnywhere, Category = FSMComponent)
-		TSubclassOf<class AHand> child;
+	UPROPERTY(EditAnywhere)
+		class UBoxComponent* hand;
+
+	UPROPERTY(EditAnywhere)
+		class UStaticMeshComponent* compMesh;
+
+	UPROPERTY(EditAnywhere)
+		class ABall* ball;
 
 public:
 	
-	
+
 
 
 		

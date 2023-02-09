@@ -31,12 +31,14 @@ void AHand::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	SetActive(false);
 }
 
 // Called every frame
 void AHand::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 
 }
 

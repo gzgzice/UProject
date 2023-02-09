@@ -40,6 +40,7 @@ public:
 	void AttackState();
 	void ChangeState(EEnemyState afterState);
 	bool FlowTime(float delayTime);
+	void ReturnIdle();
 
 public:
 
@@ -58,6 +59,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		class AHand* hand;
 
+	FTimerHandle returnHandle;
+
 public:
 
 	UPROPERTY(EditAnywhere, Category = FSM)
@@ -71,6 +74,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = FSM)
 		float attackSpeed = 0;
 
+		FVector returnHandLoc;
+	int32 attack = 0;
 
-	
 };

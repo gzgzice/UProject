@@ -77,13 +77,24 @@ private:
 	void RotateAxis(const struct FInputActionValue& value);
 	void DrawLocationLine();
 	void FireRightHand(const struct FInputActionValue& value);
-	//void ReturnRightHand();
+	void FireHand(float deltatime);
+
+	void ReturnRightHand();
+	void HandReturnMove(float deltatime);
 	//void MoveAction(float deltatime);
 
 	bool bIsDraw = false;
 	bool bIsFire = false;
+	bool bIsReturn = false;
 	FVector originPos;
-	float goalDir;
-	float speed = 3000;
+	float goalDir = 500.0f;
+
+	UPROPERTY(EditAnywhere)
+	float speed = 10;
 	float axis = 0;
+	float currtime;
+	FVector handPos;
+	float cTime = 0;
+
+	TArray<FVector> lineLoc;
 };

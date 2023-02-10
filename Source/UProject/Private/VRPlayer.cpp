@@ -65,8 +65,6 @@ AVRPlayer::AVRPlayer()
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 
-	originPos = rightMotionController->GetComponentLocation();
-	UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), originPos.X, originPos.Y, originPos.Z);
 }
 
 // Called when the game starts or when spawned
@@ -81,12 +79,17 @@ void AVRPlayer::BeginPlay()
 	UEnhancedInputLocalPlayerSubsystem* subsys = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(playerCon->GetLocalPlayer());
 
 	subsys->AddMappingContext(myMapping, 0);
+
+	originPos = leftHand->GetRelativeLocation();
+	UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), originPos.X, originPos.Y, originPos.Z);
 }
 
 // Called every frame
 void AVRPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	handPos = leftHand->GetRelativeLocation();
 
 	if (bIsDraw)
 	{
@@ -95,19 +98,27 @@ void AVRPlayer::Tick(float DeltaTime)
 
 	if (bIsFire)
 	{
-		//FVector handForward = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::Y);
-		FVector p0 = rightMotionController->GetRelativeLocation()/* + handForward*/;
-		FVector d = rightMotionController->GetRelativeLocation() * axis;
-		FVector vt = d * speed * DeltaTime;
+		FireHand(DeltaTime);
 
-		rightMotionController->SetRelativeLocation(p0 + vt);
+	//	//FVector handForward = FRotationMatrix(rightHand->GetComponentRotation()).GetUnitAxis(EAxis::Y);
+	//	//FVector handUp = FRotationMatrix(rightHand->GetComponentRotation()).GetUnitAxis(EAxis::X);
+	//	//FVector p0 = rightHand->GetComponentLocation();
+	//	//FVector d = rightHand->GetComponentLocation() + handForward + handUp;
+	//	//FVector vt = d  * axis * speed * DeltaTime;
+	//	//FHitResult hitInfo;
 
-		//FVector rightHandLoc = rightMotionController->GetComponentLocation();
-		//FVector dir = originPos - rightHandLoc;
-		//if (dir.Length() > goalDir)
-		//{
-		//	rightMotionController->SetRelativeLocation(originPos);
-		//}
+	//	//rightHand->SetWorldLocation(p0 + vt);
+
+	//	//FVector p = p0 + vt;
+
+	//	//UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), p.X, p.Y, p.Z);
+
+	//	//DrawDebugLine(GetWorld(), p0, p, FColor::Green, false, -1, 0, 5);
+	}
+
+	if (bIsReturn)
+	{
+		HandReturnMove(DeltaTime);
 	}
 }
 
@@ -124,7 +135,7 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		enhancedInputComponent->BindAction(leftActionX, ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionX);
 		enhancedInputComponent->BindAction(RightThumbStick, ETriggerEvent::Triggered, this, &AVRPlayer::RotateAxis);
 		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Triggered, this, &AVRPlayer::FireRightHand);
-		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Completed, this, &AVRPlayer::FireRightHand);
+		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Completed, this, &AVRPlayer::ReturnRightHand);
 	}
 }
 
@@ -151,7 +162,7 @@ void AVRPlayer::OnLeftActionX()
 		leftLog->SetText(FText::FromString(hitInfo.GetActor()->GetName()));
 		if (actor->GetName().Contains(TEXT("Point")))
 		{
-			SetActorLocation(actor->GetActorLocation());
+			SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 90 );
 		}
 	}
 }
@@ -181,12 +192,17 @@ void AVRPlayer::RotateAxis(const FInputActionValue& value)
 
 void AVRPlayer::FireRightHand(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp,Warning,TEXT("Fire Right Hand!!!!!"))
 	axis = value.Get<float>();
 	FString msg = FString::Printf(TEXT("%f"), axis);
 	rightLog->SetText(FText::FromString(msg));
 
 	bIsFire = true;
 
+	//if (bIsFire)
+	//{
+	//	FireHand();
+	//}
 	//FVector rightHandLoc = rightMotionController->GetComponentLocation();
 	//FVector dir = originPos - rightHandLoc;
 	//if (dir.Length() > goalDir)
@@ -195,13 +211,71 @@ void AVRPlayer::FireRightHand(const FInputActionValue& value)
 	//}
 }
 
-//void AVRPlayer::ReturnRightHand()
-//{
-//	bIsFire = false;
-//
-//	FVector pos = FMath::Lerp(rightHandLoc, originPos, 1.0f);
-//	rightMotionController->SetRelativeLocation(originPos);
-//}
+void AVRPlayer::FireHand(float deltatime)
+{
+	currtime += deltatime;
+	//float deltatime = GetWorld()->GetDeltaSeconds();
+
+	FVector handForward = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::Y);
+	FVector handUp = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::X) * -2;
+
+	FVector dir = handForward + handUp;
+
+	FVector prediction = leftHand->GetRelativeLocation() + dir * axis * speed * currtime;
+	//UE_LOG(LogTemp,Warning,TEXT("TimeSegment : %d & FireHand FVector : %s"), timeSegment,*prediction.ToString())
+
+	leftHand->SetRelativeLocation(prediction);
+
+	FVector p = leftHand->GetRelativeLocation();
+
+	FString msg = FString::Printf(TEXT("%f"), p.X, p.Y, p.Z);
+	rightLog->SetText(FText::FromString(msg));
+
+	FVector dirrection = originPos - leftHand->GetRelativeLocation();
+	if (dirrection.Length() > goalDir)
+	{
+		bIsFire = false;
+		FVector returnPos = FMath::Lerp(handPos, originPos, currtime);
+		leftHand->SetRelativeLocation(originPos);
+		UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), returnPos.X, returnPos.Y, returnPos.Z);
+	}
+
+	//	FVector Return = FMath::Lerp(prediction, prediction, deltatime);
+}
+
+void AVRPlayer::ReturnRightHand()
+{
+	UE_LOG(LogTemp,Warning,TEXT("returnRigth!!!!!"))
+	bIsFire = false;
+	
+	if (!bIsFire)
+	{
+		bIsReturn = true;
+		//leftHand->SetRelativeLocation(originPos);
+	}
+}
+
+void AVRPlayer::HandReturnMove(float deltatime)
+{
+	cTime += deltatime;
+
+	FVector handForward = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::Y) * -1;
+	FVector handUp = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::X) * 2;
+
+	FVector dir = handForward + handUp;
+
+	FVector p = leftHand->GetRelativeLocation() + dir * speed * cTime;
+	leftHand->SetRelativeLocation(p);
+	UE_LOG(LogTemp, Error, TEXT("%f,%f,%f"), p.X, p.Y, p.Z);
+
+	FVector direction = originPos - leftHand->GetRelativeLocation();
+
+	if (direction.Length() > goalDir)
+	{
+		bIsReturn = false;
+		leftHand->SetRelativeLocation(originPos);
+	}
+}
 
 //void AVRPlayer::MoveAction(float deltatime)
 //{

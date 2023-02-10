@@ -80,8 +80,7 @@ void AVRPlayer::BeginPlay()
 
 	subsys->AddMappingContext(myMapping, 0);
 
-	originPos = leftHand->GetRelativeLocation();
-	UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), originPos.X, originPos.Y, originPos.Z);
+	startPos = leftHand->GetComponentLocation();
 }
 
 // Called every frame
@@ -89,7 +88,8 @@ void AVRPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	handPos = leftHand->GetRelativeLocation();
+	originPos = leftHand->GetComponentLocation();
+	UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), originPos.X, originPos.Y, originPos.Z);
 
 	if (bIsDraw)
 	{
@@ -115,11 +115,6 @@ void AVRPlayer::Tick(float DeltaTime)
 
 	//	//DrawDebugLine(GetWorld(), p0, p, FColor::Green, false, -1, 0, 5);
 	}
-
-	if (bIsReturn)
-	{
-		HandReturnMove(DeltaTime);
-	}
 }
 
 // Called to bind functionality to input
@@ -135,7 +130,7 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		enhancedInputComponent->BindAction(leftActionX, ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionX);
 		enhancedInputComponent->BindAction(RightThumbStick, ETriggerEvent::Triggered, this, &AVRPlayer::RotateAxis);
 		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Triggered, this, &AVRPlayer::FireRightHand);
-		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Completed, this, &AVRPlayer::ReturnRightHand);
+		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Completed, this, &AVRPlayer::FireRightHand);
 	}
 }
 
@@ -198,6 +193,7 @@ void AVRPlayer::FireRightHand(const FInputActionValue& value)
 	rightLog->SetText(FText::FromString(msg));
 
 	bIsFire = true;
+	//originPos = leftHand->GetComponentLocation() + leftHand->GetForwardVector() * 100 + delta;
 
 	//if (bIsFire)
 	//{
@@ -220,27 +216,26 @@ void AVRPlayer::FireHand(float deltatime)
 	FVector handUp = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::X) * -2;
 
 	FVector dir = handForward + handUp;
+	UE_LOG(LogTemp, Error, TEXT("%f, %f"), dir.X, dir.Y);
+	//UE_LOG(LogTemp, Error, TEXT("%f"), speed);
 
-	FVector prediction = leftHand->GetRelativeLocation() + dir * axis * speed * currtime;
+	FVector prediction = leftHand->GetComponentLocation() + dir * axis * speed * currtime;
 	//UE_LOG(LogTemp,Warning,TEXT("TimeSegment : %d & FireHand FVector : %s"), timeSegment,*prediction.ToString())
 
-	leftHand->SetRelativeLocation(prediction);
+	leftHand->SetWorldLocation(prediction);
 
-	FVector p = leftHand->GetRelativeLocation();
-
+	FVector p = leftHand->GetComponentLocation();
 	FString msg = FString::Printf(TEXT("%f"), p.X, p.Y, p.Z);
 	rightLog->SetText(FText::FromString(msg));
 
-	FVector dirrection = originPos - leftHand->GetRelativeLocation();
+	FVector dirrection = startPos - leftHand->GetComponentLocation();
 	if (dirrection.Length() > goalDir)
 	{
 		bIsFire = false;
-		FVector returnPos = FMath::Lerp(handPos, originPos, currtime);
-		leftHand->SetRelativeLocation(originPos);
+		leftHand->SetWorldLocation(originPos);
+		FVector returnPos = FMath::Lerp(, originPos, currtime);
 		UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), returnPos.X, returnPos.Y, returnPos.Z);
 	}
-
-	//	FVector Return = FMath::Lerp(prediction, prediction, deltatime);
 }
 
 void AVRPlayer::ReturnRightHand()
@@ -252,28 +247,6 @@ void AVRPlayer::ReturnRightHand()
 	{
 		bIsReturn = true;
 		//leftHand->SetRelativeLocation(originPos);
-	}
-}
-
-void AVRPlayer::HandReturnMove(float deltatime)
-{
-	cTime += deltatime;
-
-	FVector handForward = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::Y) * -1;
-	FVector handUp = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::X) * 2;
-
-	FVector dir = handForward + handUp;
-
-	FVector p = leftHand->GetRelativeLocation() + dir * speed * cTime;
-	leftHand->SetRelativeLocation(p);
-	UE_LOG(LogTemp, Error, TEXT("%f,%f,%f"), p.X, p.Y, p.Z);
-
-	FVector direction = originPos - leftHand->GetRelativeLocation();
-
-	if (direction.Length() > goalDir)
-	{
-		bIsReturn = false;
-		leftHand->SetRelativeLocation(originPos);
 	}
 }
 

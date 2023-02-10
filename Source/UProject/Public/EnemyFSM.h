@@ -59,17 +59,23 @@ public:
 	UPROPERTY(EditAnywhere)
 		class AHand* hand;
 
+	UPROPERTY(EditAnywhere)
+		class AMovePoint* point;
+
 	FTimerHandle returnHandle;
 
 public:
 
 	UPROPERTY(EditAnywhere, Category = FSM)
-		float idleDelayTIme = 2;
+		float idleDelayTIme = 3;
 
 	float currentTime = 0;
 
 	UPROPERTY(EditAnywhere, Category = FSM)
 		float searchRange = 500;
+
+	UPROPERTY(EditAnywhere, Category = FSM)
+		float moveSpeed = 0;
 	
 	UPROPERTY(EditAnywhere, Category = FSM)
 		float attackSpeed = 0;

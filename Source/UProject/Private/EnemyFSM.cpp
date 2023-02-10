@@ -9,6 +9,7 @@
 #include "Hand.h"
 #include <Components/BoxComponent.h>
 #include "Engine/World.h"
+#include "MovePoint.h"
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -29,7 +30,7 @@ void UEnemyFSM::BeginPlay()
 	enemy = Cast<AEnemy>(GetOwner());
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 	hand = Cast<AHand>(UGameplayStatics::GetActorOfClass(GetWorld(), AHand::StaticClass()));
-
+	point = Cast<AMovePoint>(UGameplayStatics::GetActorOfClass(GetWorld(), AMovePoint::StaticClass()));
 }
 
 
@@ -59,6 +60,9 @@ void UEnemyFSM::IdleState()
 {
 	bool bComplete = FlowTime(idleDelayTIme);
 
+	DrawDebugLine(GetWorld(), enemy->GetActorLocation() + enemy->GetActorForwardVector() * 150,
+		enemy->GetActorLocation() + enemy->GetActorForwardVector() * 750, FColor::Red, true, -1, 0, 2);
+
 	if (bComplete)
 	{
 		//검색 상태로 전환한다.
@@ -85,37 +89,78 @@ void UEnemyFSM::SearchState()
 
 void UEnemyFSM::MoveState()
 {
- //point
+
+	FVector startLoc = enemy->GetActorLocation() + enemy->GetActorForwardVector() * 220;
+	//FVector pos1 = enemy->GetActorUpVector() * -50;
+	FVector endLoc = enemy->GetActorLocation() + enemy->GetActorForwardVector() * 700;
+	FHitResult hitPoint;
+	FHitResult hitEnemy;
+
+	DrawDebugSphere(GetWorld(), endLoc,
+		75, 30, FColor::Cyan, true, -1, 0, 1);
+
+	bool bPoint = GetWorld()->SweepSingleByChannel(hitPoint, startLoc, endLoc, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(75));
+	bool bEnemy = GetWorld()->SweepSingleByProfile(hitEnemy, startLoc, endLoc, FQuat::Identity, TEXT("EnemyPreset"), FCollisionShape::MakeSphere(75));
+//  	bool bPoint = GetWorld()->LineTraceSingleByChannel(hitPoint, startLoc, endLoc, ECC_Visibility);
+//  	bool bEnemy = GetWorld()->LineTraceSingleByProfile(hitEnemy, startLoc, endLoc, TEXT("EnemyPreset"));
+
+	if (bEnemy)
+	{
+			AActor* actorEnemy = hitEnemy.GetActor();
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *actorEnemy->GetName());
+			ChangeState(EEnemyState::Idle);
+		
+	}
+	else
+		{
+			UE_LOG(LogTemp, Warning, TEXT("None_Enemy"));
+			if (bPoint)
+			{
+				AActor* actorPoint = hitPoint.GetActor();
+				FVector arriveLoc = actorPoint->GetActorLocation();
+				arriveLoc.Z = 91;
+				{
+					if (actorPoint->GetName().Contains(TEXT("Point")))
+					{
+						UE_LOG(LogTemp, Warning, TEXT("%s"), *actorPoint->GetName());
+						moveSpeed += GetWorld()->DeltaTimeSeconds;
+						enemy->SetActorLocation(arriveLoc);
+						ChangeState(EEnemyState::Idle);
+					}
+				}
+			}
+		}
+
 }
 
 void UEnemyFSM::AttackState()
 {
-		FVector start = enemy->hand->GetComponentLocation();
-		attackSpeed += GetWorld()->GetDeltaSeconds();
-		FVector P = FMath::Lerp(start, ball->GetActorLocation(), attackSpeed);
-		enemy->hand->SetWorldLocation(P);
-	
-	
+	FVector start = enemy->GetActorLocation() + enemy->GetActorForwardVector();
+	attackSpeed += GetWorld()->GetDeltaSeconds();
+	FVector P = FMath::Lerp(start, ball->GetActorLocation(), attackSpeed);
+	enemy->hand->SetWorldLocation(P);
 
-	
-// 
-// 	FHitResult hitInfo;
-// 	FCollisionQueryParams param;
-// 	param.AddIgnoredActor(enemy);
-// 	//param.AddIgnoredActor(hand);
-// 
-// 	if (GetWorld()->LineTraceSingleByChannel(hitInfo, start, start + FVector(1, 0, 0), ECC_Visibility, param))
-// 	{
-// 
-// 				enemy->hand->SetWorldLocation(enemy->GetMesh()->GetSocketLocation(TEXT("HandPos")));
-// 		//GetWorldTimerManager().SetTimer(returnHandle, this, &UEnemyFSM::ReturnIdle, 0.5f, false);
-// 		float WaitTime = 0.03; //시간을 설정하고
-// 		GetWorld()->GetTimerManager().SetTimer(returnHandle, FTimerDelegate::CreateLambda([&]()
-// 			{
-// 				ChangeState(EEnemyState::Idle);
-// 			}), WaitTime, false);
-// 
-// 	}
+
+
+
+	// 
+	// 	FHitResult hitInfo;
+	// 	FCollisionQueryParams param;
+	// 	param.AddIgnoredActor(enemy);
+	// 	//param.AddIgnoredActor(hand);
+	// 
+	// 	if (GetWorld()->LineTraceSingleByChannel(hitInfo, start, start + FVector(1, 0, 0), ECC_Visibility, param))
+	// 	{
+	// 
+	// 				enemy->hand->SetWorldLocation(enemy->GetMesh()->GetSocketLocation(TEXT("HandPos")));
+	// 		//GetWorldTimerManager().SetTimer(returnHandle, this, &UEnemyFSM::ReturnIdle, 0.5f, false);
+	// 		float WaitTime = 0.03; //시간을 설정하고
+	// 		GetWorld()->GetTimerManager().SetTimer(returnHandle, FTimerDelegate::CreateLambda([&]()
+	// 			{
+	// 				ChangeState(EEnemyState::Idle);
+	// 			}), WaitTime, false);
+	// 
+	// 	}
 }
 
 void UEnemyFSM::ChangeState(EEnemyState afterState)
@@ -124,29 +169,28 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 
 	switch (state)
 	{
-		case EEnemyState::Idle:
-		{	
-			attack = 0;
-			//enemy->compMesh->SetVisibility(false);
-			UE_LOG(LogTemp, Warning, TEXT("IDLE"));
-		}
-		case EEnemyState::Search:
-		{
-			UE_LOG(LogTemp, Warning, TEXT("SEARCH"));
-		}
-		break;
-		case EEnemyState::Move:
-		{
-			
-			UE_LOG(LogTemp, Warning, TEXT("MOVE"));
-		}
-		break;
-		case EEnemyState::Attack:
-		{	
-			enemy->compMesh->SetVisibility(true);
-			UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
-		}
-		break;
+	case EEnemyState::Idle:
+	{
+		idleDelayTIme = 0;
+		//enemy->compMesh->SetVisibility(false);
+		UE_LOG(LogTemp, Warning, TEXT("IDLE"));
+	}
+	case EEnemyState::Search:
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SEARCH"));
+	}
+	break;
+	case EEnemyState::Move:
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MOVE"));
+	}
+	break;
+	case EEnemyState::Attack:
+	{
+		enemy->compMesh->SetVisibility(true);
+		UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
+	}
+	break;
 	}
 }
 

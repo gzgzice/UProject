@@ -40,7 +40,7 @@ public:
 	void AttackState();
 	void ChangeState(EEnemyState afterState);
 	bool FlowTime(float delayTime);
-	void ReturnIdle();
+	void ReturnHand();
 
 public:
 
@@ -53,11 +53,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		class AEnemy* enemy;
 
-	UPROPERTY(EditAnywhere)
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class ABall* ball;
-
-	UPROPERTY(EditAnywhere)
-		class AHand* hand;
 
 	UPROPERTY(EditAnywhere)
 		class AMovePoint* point;
@@ -72,7 +69,7 @@ public:
 	float currentTime = 0;
 
 	UPROPERTY(EditAnywhere, Category = FSM)
-		float searchRange = 500;
+		float searchRange = 1000;
 
 	UPROPERTY(EditAnywhere, Category = FSM)
 		float moveSpeed = 0;
@@ -82,5 +79,8 @@ public:
 
 		FVector returnHandLoc;
 	int32 attack = 0;
+	float x;
+	float y;
+	float z;
 
 };

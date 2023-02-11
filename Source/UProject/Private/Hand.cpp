@@ -4,6 +4,7 @@
 #include "Hand.h"
 #include <Components/BoxComponent.h>
 #include <Components/StaticMeshComponent.h>
+#include "Enemy.h"
 
 // Sets default values
 AHand::AHand()
@@ -15,6 +16,7 @@ AHand::AHand()
 	SetRootComponent(hand);
 	hand->SetBoxExtent(FVector(50));
 	hand->SetRelativeScale3D(FVector(0.3f));
+	hand->SetCollisionProfileName(TEXT("HandPreset"));
 
 	compMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	compMesh->SetupAttachment(hand);
@@ -32,6 +34,8 @@ void AHand::BeginPlay()
 	Super::BeginPlay();
 	
 	SetActive(false);
+
+
 }
 
 // Called every frame
@@ -39,6 +43,12 @@ void AHand::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+}
+
+void AHand::NotifyActorBeginOverlap(AActor* OtherActor)
+{
+	Super::NotifyActorBeginOverlap(OtherActor);
 
 }
 

@@ -30,7 +30,7 @@ AEnemy::AEnemy()
 	hand->SetCollisionProfileName("HandPreset");
 	hand->SetBoxExtent(FVector(50));
 	hand->SetRelativeScale3D(FVector(0.3));
-	
+	hand->SetRelativeRotation(FRotator(0,90,-90));
 
 	compMesh = CreateDefaultSubobject<UStaticMeshComponent>("HandMesh");
 	compMesh->SetupAttachment(hand);
@@ -71,6 +71,7 @@ void AEnemy::BeginPlay()
 
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 
+	hand->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
 }
 
 // Called every frame
@@ -84,6 +85,7 @@ void AEnemy::Tick(float DeltaTime)
 	rot.Pitch = 0;
 	rot.Roll = 0;
 	SetActorRotation(rot);
+	hand->SetWorldRotation(rot);
 }
 
 // Called to bind functionality to input
@@ -93,5 +95,17 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void AEnemy::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	OverlappedComp = hand;
+
+	if (OtherComp->GetName().Contains(TEXT("Ball")))
+	{
+// 		FVector dir = hand->GetForwardVector();
+// 		FVector F = ballMass * dir * 500;
+// 		OtherComp->AddImpulse(F);
+		bHit = true;
+	}
+}
 
 

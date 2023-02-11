@@ -29,7 +29,6 @@ void UEnemyFSM::BeginPlay()
 	player = Cast<AVRPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), AVRPlayer::StaticClass()));
 	enemy = Cast<AEnemy>(GetOwner());
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
-	hand = Cast<AHand>(UGameplayStatics::GetActorOfClass(GetWorld(), AHand::StaticClass()));
 	point = Cast<AMovePoint>(UGameplayStatics::GetActorOfClass(GetWorld(), AMovePoint::StaticClass()));
 }
 
@@ -59,9 +58,6 @@ void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 void UEnemyFSM::IdleState()
 {
 	bool bComplete = FlowTime(idleDelayTIme);
-
-	DrawDebugLine(GetWorld(), enemy->GetActorLocation() + enemy->GetActorForwardVector() * 150,
-		enemy->GetActorLocation() + enemy->GetActorForwardVector() * 750, FColor::Red, true, -1, 0, 2);
 
 	if (bComplete)
 	{
@@ -96,8 +92,7 @@ void UEnemyFSM::MoveState()
 	FHitResult hitPoint;
 	FHitResult hitEnemy;
 
-	DrawDebugSphere(GetWorld(), endLoc,
-		75, 30, FColor::Cyan, true, -1, 0, 1);
+	//DrawDebugSphere(GetWorld(), endLoc, 75, 30, FColor::Cyan, false, 5, 0, 1);
 
 	bool bPoint = GetWorld()->SweepSingleByChannel(hitPoint, startLoc, endLoc, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(75));
 	bool bEnemy = GetWorld()->SweepSingleByProfile(hitEnemy, startLoc, endLoc, FQuat::Identity, TEXT("EnemyPreset"), FCollisionShape::MakeSphere(75));
@@ -107,13 +102,13 @@ void UEnemyFSM::MoveState()
 	if (bEnemy)
 	{
 			AActor* actorEnemy = hitEnemy.GetActor();
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *actorEnemy->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("%s"), *actorEnemy->GetName());
 			ChangeState(EEnemyState::Idle);
 		
 	}
 	else
 		{
-			UE_LOG(LogTemp, Warning, TEXT("None_Enemy"));
+			//UE_LOG(LogTemp, Warning, TEXT("None_Enemy"));
 			if (bPoint)
 			{
 				AActor* actorPoint = hitPoint.GetActor();
@@ -122,7 +117,7 @@ void UEnemyFSM::MoveState()
 				{
 					if (actorPoint->GetName().Contains(TEXT("Point")))
 					{
-						UE_LOG(LogTemp, Warning, TEXT("%s"), *actorPoint->GetName());
+						//UE_LOG(LogTemp, Warning, TEXT("%s"), *actorPoint->GetName());
 						moveSpeed += GetWorld()->DeltaTimeSeconds;
 						enemy->SetActorLocation(arriveLoc);
 						ChangeState(EEnemyState::Idle);
@@ -130,37 +125,42 @@ void UEnemyFSM::MoveState()
 				}
 			}
 		}
-
 }
 
 void UEnemyFSM::AttackState()
 {
-	FVector start = enemy->GetActorLocation() + enemy->GetActorForwardVector();
-	attackSpeed += GetWorld()->GetDeltaSeconds();
-	FVector P = FMath::Lerp(start, ball->GetActorLocation(), attackSpeed);
-	enemy->hand->SetWorldLocation(P);
-
-
-
-
-	// 
-	// 	FHitResult hitInfo;
-	// 	FCollisionQueryParams param;
-	// 	param.AddIgnoredActor(enemy);
-	// 	//param.AddIgnoredActor(hand);
-	// 
-	// 	if (GetWorld()->LineTraceSingleByChannel(hitInfo, start, start + FVector(1, 0, 0), ECC_Visibility, param))
-	// 	{
-	// 
-	// 				enemy->hand->SetWorldLocation(enemy->GetMesh()->GetSocketLocation(TEXT("HandPos")));
-	// 		//GetWorldTimerManager().SetTimer(returnHandle, this, &UEnemyFSM::ReturnIdle, 0.5f, false);
-	// 		float WaitTime = 0.03; //시간을 설정하고
-	// 		GetWorld()->GetTimerManager().SetTimer(returnHandle, FTimerDelegate::CreateLambda([&]()
-	// 			{
-	// 				ChangeState(EEnemyState::Idle);
-	// 			}), WaitTime, false);
-	// 
-	// 	}
+	FVector start = enemy->GetActorLocation() + FVector(0,0,50);
+	FVector end = ball->GetActorLocation() + FVector(x, y, z);
+	FHitResult hit;
+	FCollisionQueryParams param;
+	param.AddIgnoredActor(enemy);
+	bool bHitball = GetWorld()->LineTraceSingleByProfile(hit, start, end, TEXT("BallPreset"), param);
+	//DrawDebugLine(GetWorld(),start, end, FColor::Blue, true, -1,0,1);
+	if (bHitball)
+	{
+		UPrimitiveComponent* hitBall = hit.GetComponent();
+		attackSpeed += GetWorld()->GetDeltaSeconds();
+	    float a = FMath::Clamp(attackSpeed,0.0f,1.0f);
+		FVector dir = hit.ImpactPoint - enemy->hand->GetComponentLocation();
+		FVector attackStart = enemy->hand->GetComponentLocation();
+		FVector p = FMath::Lerp(attackStart, end, a);
+		enemy->hand->SetWorldLocation(p);
+			
+		if (enemy->bHit)
+		{	
+			UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());
+			FVector F = hit.GetComponent()->GetMass() * dir * 2000;
+			hit.GetComponent()->AddForceAtLocation(F,hit.ImpactPoint);
+			ReturnHand();
+		}
+	}
+	else
+	{
+		if (FlowTime(3))
+		{
+			ChangeState(EEnemyState::Idle);
+		}
+	}
 }
 
 void UEnemyFSM::ChangeState(EEnemyState afterState)
@@ -171,7 +171,7 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 	{
 	case EEnemyState::Idle:
 	{
-		idleDelayTIme = 0;
+		enemy->bHit = false;
 		//enemy->compMesh->SetVisibility(false);
 		UE_LOG(LogTemp, Warning, TEXT("IDLE"));
 	}
@@ -187,6 +187,9 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 	break;
 	case EEnemyState::Attack:
 	{
+		 x = FMath::RandRange(-150, 150);
+		 y = FMath::RandRange(-150, 150);
+		 z = FMath::RandRange(-150, 150);
 		enemy->compMesh->SetVisibility(true);
 		UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
 	}
@@ -205,7 +208,11 @@ bool UEnemyFSM::FlowTime(float delayTime)
 	return false;
 }
 
-void UEnemyFSM::ReturnIdle()
+void UEnemyFSM::ReturnHand()
 {
+	UE_LOG(LogTemp, Warning, TEXT("ReturnHand"));
+	enemy->hand->SetWorldLocation(enemy->GetMesh()->GetSocketLocation(TEXT("HandPos")));
 	ChangeState(EEnemyState::Idle);
 }
+
+

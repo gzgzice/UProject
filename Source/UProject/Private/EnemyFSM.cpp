@@ -148,7 +148,8 @@ void UEnemyFSM::AttackState()
 			
 		if (enemy->bHit)
 		{	
-			UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());
+			//UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());
+
 			FVector F = hit.GetComponent()->GetMass() * dir * 2000;
 			hit.GetComponent()->AddForceAtLocation(F,hit.ImpactPoint);
 			ReturnHand();

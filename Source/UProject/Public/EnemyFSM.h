@@ -53,11 +53,14 @@ public:
 	UPROPERTY(EditAnywhere)
 		class AEnemy* enemy;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere)
 		class ABall* ball;
 
 	UPROPERTY(EditAnywhere)
 		class AMovePoint* point;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = FSM)
+		class AGoalPost* redGoalPost;
 
 	FTimerHandle returnHandle;
 

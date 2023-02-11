@@ -10,6 +10,7 @@
 #include <Components/BoxComponent.h>
 #include "Engine/World.h"
 #include "MovePoint.h"
+#include "BlueGoalPost.h"
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -30,6 +31,7 @@ void UEnemyFSM::BeginPlay()
 	enemy = Cast<AEnemy>(GetOwner());
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 	point = Cast<AMovePoint>(UGameplayStatics::GetActorOfClass(GetWorld(), AMovePoint::StaticClass()));
+	blueGoalPost = Cast<ABlueGoalPost>(UGameplayStatics::GetActorOfClass(GetWorld(), ABlueGoalPost::StaticClass()));
 }
 
 
@@ -86,74 +88,120 @@ void UEnemyFSM::SearchState()
 void UEnemyFSM::MoveState()
 {
 
-	FVector startLoc = enemy->GetActorLocation() + enemy->GetActorForwardVector() * 220;
+	FVector startLoc = enemy->GetActorLocation() + enemy->GetActorForwardVector() * 300;
 	//FVector pos1 = enemy->GetActorUpVector() * -50;
 	FVector endLoc = enemy->GetActorLocation() + enemy->GetActorForwardVector() * 700;
 	FHitResult hitPoint;
 	FHitResult hitEnemy;
+	FCollisionObjectQueryParams objectEnemy;
+	objectEnemy.AddObjectTypesToQuery(ECC_GameTraceChannel4);
+	FHitResult hitPlayer;
+	FCollisionObjectQueryParams objectPlayer;
+	objectPlayer.AddObjectTypesToQuery(ECC_Pawn);
 
-	//DrawDebugSphere(GetWorld(), endLoc, 75, 30, FColor::Cyan, false, 5, 0, 1);
+	DrawDebugSphere(GetWorld(), endLoc, 75, 30, FColor::Cyan, false, 5, 0, 1);
 
 	bool bPoint = GetWorld()->SweepSingleByChannel(hitPoint, startLoc, endLoc, FQuat::Identity, ECC_Visibility, FCollisionShape::MakeSphere(75));
-	bool bEnemy = GetWorld()->SweepSingleByProfile(hitEnemy, startLoc, endLoc, FQuat::Identity, TEXT("EnemyPreset"), FCollisionShape::MakeSphere(75));
-//  	bool bPoint = GetWorld()->LineTraceSingleByChannel(hitPoint, startLoc, endLoc, ECC_Visibility);
-//  	bool bEnemy = GetWorld()->LineTraceSingleByProfile(hitEnemy, startLoc, endLoc, TEXT("EnemyPreset"));
+	bool bEnemy = GetWorld()->SweepSingleByObjectType(hitEnemy, startLoc, endLoc, FQuat::Identity, objectEnemy, FCollisionShape::MakeSphere(75));
+	bool bPlayer = GetWorld()->SweepSingleByObjectType(hitPlayer, startLoc, endLoc, FQuat::Identity, objectPlayer, FCollisionShape::MakeSphere(75));
+	//  	bool bPoint = GetWorld()->LineTraceSingleByChannel(hitPoint, startLoc, endLoc, ECC_Visibility);
+	//  	bool bEnemy = GetWorld()->LineTraceSingleByProfile(hitEnemy, startLoc, endLoc, TEXT("EnemyPreset"));
 
-	if (bEnemy)
+	if (bEnemy || bPlayer)
 	{
-			AActor* actorEnemy = hitEnemy.GetActor();
-			//UE_LOG(LogTemp, Warning, TEXT("%s"), *actorEnemy->GetName());
-			ChangeState(EEnemyState::Idle);
-		
+		UE_LOG(LogTemp, Warning, TEXT("Enemy or Player"));
+		ChangeState(EEnemyState::Idle);
 	}
 	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("None_Enemy"));
+		if (bPoint)
 		{
-			//UE_LOG(LogTemp, Warning, TEXT("None_Enemy"));
-			if (bPoint)
+			AActor* actorPoint = hitPoint.GetActor();
+			UE_LOG(LogTemp, Warning, TEXT("%s"), *actorPoint->GetName());
+			FVector arriveLoc = actorPoint->GetActorLocation();
+			arriveLoc.Z = 91;
 			{
-				AActor* actorPoint = hitPoint.GetActor();
-				FVector arriveLoc = actorPoint->GetActorLocation();
-				arriveLoc.Z = 91;
+				if (actorPoint->GetName().Contains(TEXT("Point")))
 				{
-					if (actorPoint->GetName().Contains(TEXT("Point")))
-					{
-						//UE_LOG(LogTemp, Warning, TEXT("%s"), *actorPoint->GetName());
-						moveSpeed += GetWorld()->DeltaTimeSeconds;
-						enemy->SetActorLocation(arriveLoc);
-						ChangeState(EEnemyState::Idle);
-					}
+
+					moveSpeed += GetWorld()->DeltaTimeSeconds;
+					enemy->SetActorLocation(arriveLoc);
+					ChangeState(EEnemyState::Idle);
 				}
 			}
 		}
+		else
+		{
+			ChangeState(EEnemyState::Idle);
+		}
+	}
 }
 
 void UEnemyFSM::AttackState()
 {
-	FVector start = enemy->GetActorLocation() + FVector(0,0,50);
+	FVector start = enemy->GetActorLocation() + FVector(0, 0, 100);
 	FVector end = ball->GetActorLocation() + FVector(x, y, z);
 	FHitResult hit;
-	FCollisionQueryParams param;
-	param.AddIgnoredActor(enemy);
-	bool bHitball = GetWorld()->LineTraceSingleByProfile(hit, start, end, TEXT("BallPreset"), param);
-	//DrawDebugLine(GetWorld(),start, end, FColor::Blue, true, -1,0,1);
+	FCollisionObjectQueryParams objectBall;
+	objectBall.AddObjectTypesToQuery(ECC_GameTraceChannel2);
+
+	bool bHitball = GetWorld()->LineTraceSingleByObjectType(hit, start, end, objectBall);
+	DrawDebugLine(GetWorld(),start, end, FColor::Blue, true, -1,0,1);
 	if (bHitball)
 	{
 		UPrimitiveComponent* hitBall = hit.GetComponent();
+		UE_LOG(LogTemp, Warning, TEXT("%s"), *hit.GetComponent()->GetName());
 		attackSpeed += GetWorld()->GetDeltaSeconds();
-	    float a = FMath::Clamp(attackSpeed,0.0f,1.0f);
-		FVector dir = hit.ImpactPoint - enemy->hand->GetComponentLocation();
+		float a = FMath::Clamp(attackSpeed, 0.0f, 1.0f);
+		FVector dirForce = hit.ImpactPoint - enemy->hand->GetComponentLocation();
 		FVector attackStart = enemy->hand->GetComponentLocation();
-		FVector p = FMath::Lerp(attackStart, end, a);
+		FVector p = FMath::Lerp(attackStart, end, a/100);
 		enemy->hand->SetWorldLocation(p);
-			
-		if (enemy->bHit)
-		{	
-			//UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());
 
-			FVector F = hit.GetComponent()->GetMass() * dir * 2000;
-			hit.GetComponent()->AddForceAtLocation(F,hit.ImpactPoint);
-			ReturnHand();
+		if (enemy->bHit)
+		{
+			FVector	ballLocation = hit.Component->GetComponentLocation();
+			FVector postLocation = blueGoalPost->GetActorLocation();
+			FVector dirGoalPost = (postLocation-ballLocation);
+			if (dirGoalPost.Length() > 1000)
+			{
+				if (hit.Component->IsSimulatingPhysics())
+				{
+					UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());
+					FVector F = hit.GetComponent()->GetMass() * dirForce * 5000;
+					hit.GetComponent()->AddForceAtLocation(F, hit.ImpactPoint);
+					ReturnHand();
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("None Simulate"));
+					ReturnHand();
+				}
+			}
+			else
+			{
+				UE_LOG(LogTemp, Warning, TEXT("Go GoalPost"));
+				DrawDebugLine(GetWorld(), ballLocation, postLocation, FColor::Green, true, -1, 0, 1);
+				if (hit.Component->IsSimulatingPhysics())
+				{
+					UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());
+					FVector F = hit.GetComponent()->GetMass() * dirGoalPost * 5;
+					hit.GetComponent()->AddImpulse(F);
+					ReturnHand();
+				}
+				else
+				{
+					UE_LOG(LogTemp, Error, TEXT("None Simulate"));
+					ReturnHand();
+				}
+			}		
 		}
+// 		else if (a > 0.9)
+// 		{
+// 			UE_LOG(LogTemp, Error, TEXT("NoHit"));
+// 			ReturnHand();
+// 		}
 	}
 	else
 	{
@@ -173,7 +221,7 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 	case EEnemyState::Idle:
 	{
 		enemy->bHit = false;
-		//enemy->compMesh->SetVisibility(false);
+		enemy->handMesh->SetVisibility(false);
 		UE_LOG(LogTemp, Warning, TEXT("IDLE"));
 	}
 	case EEnemyState::Search:
@@ -188,10 +236,10 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 	break;
 	case EEnemyState::Attack:
 	{
-		 x = FMath::RandRange(-150, 150);
-		 y = FMath::RandRange(-150, 150);
-		 z = FMath::RandRange(-150, 150);
-		enemy->compMesh->SetVisibility(true);
+		x = FMath::RandRange(-100, 100);
+		y = FMath::RandRange(-100, 100);
+		z = FMath::RandRange(-100, 100);
+		enemy->handMesh->SetVisibility(true);
 		UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
 	}
 	break;

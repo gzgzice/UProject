@@ -59,8 +59,8 @@ public:
 	UPROPERTY(EditAnywhere)
 		class AMovePoint* point;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = FSM)
-		class AGoalPost* redGoalPost;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+		class ABlueGoalPost* blueGoalPost;
 
 	FTimerHandle returnHandle;
 

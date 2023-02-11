@@ -15,6 +15,12 @@ AMovePoint::AMovePoint()
 	SetRootComponent(compBox);
 	compBox->SetCollisionProfileName(TEXT("BlockAll"));
 
+	caughtBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CaughtCollision"));
+	caughtBox->SetupAttachment(compBox);
+	caughtBox->SetCollisionProfileName(TEXT("PointPreset"));
+	caughtBox->SetRelativeLocation(FVector(0,0,16000));
+	caughtBox->SetRelativeScale3D(FVector(0.5f,0.5f,500));
+
 	compMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	compMesh->SetupAttachment(compBox);
 	compMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);

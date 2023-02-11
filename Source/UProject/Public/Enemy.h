@@ -41,7 +41,7 @@ public:
 		class UBoxComponent* hand;
 
 	UPROPERTY(EditAnywhere)
-		class UStaticMeshComponent* compMesh;
+		class UStaticMeshComponent* handMesh;
 
 	UPROPERTY(EditAnywhere)
 		class ABall* ball;

@@ -24,6 +24,7 @@ AEnemy::AEnemy()
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	hand = CreateDefaultSubobject<UBoxComponent>("Hand");
 	hand->SetupAttachment(GetMesh(), TEXT("HandPos"));
@@ -32,10 +33,10 @@ AEnemy::AEnemy()
 	hand->SetRelativeScale3D(FVector(0.3));
 	hand->SetRelativeRotation(FRotator(0,90,-90));
 
-	compMesh = CreateDefaultSubobject<UStaticMeshComponent>("HandMesh");
-	compMesh->SetupAttachment(hand);
-	compMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	compMesh->SetVisibility(false);
+	handMesh = CreateDefaultSubobject<UStaticMeshComponent>("HandMesh");
+	handMesh->SetupAttachment(hand);
+	handMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	handMesh->SetVisibility(false);
 	//ConstructorHelpers::FObjectFinder
 
 // 	hand = CreateDefaultSubobject<UChildActorComponent>(TEXT("Hand"));
@@ -51,7 +52,7 @@ AEnemy::AEnemy()
 	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
 	if (tempMesh.Succeeded())
 	{
-		compMesh->SetStaticMesh(tempMesh.Object);
+		handMesh->SetStaticMesh(tempMesh.Object);
 	}
 // 	ConstructorHelpers::FClassFinder<AHand> tempHand(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/BP_Hand.BP_Hand_C'"));
 // 	if (tempHand.Succeeded())
@@ -98,14 +99,14 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	OverlappedComp = hand;
-
-	if (OtherComp->GetName().Contains(TEXT("Ball")))
-	{
-// 		FVector dir = hand->GetForwardVector();
-// 		FVector F = ballMass * dir * 500;
-// 		OtherComp->AddImpulse(F);
-		bHit = true;
-	}
+	bHit = true;
+// 	if (OtherComp->GetName().Contains(TEXT("Ball")))
+// 	{
+// // 		FVector dir = hand->GetForwardVector();
+// // 		FVector F = ballMass * dir * 500;
+// // 		OtherComp->AddImpulse(F);
+// 		bHit = true;
+// 	}
 }
 
 

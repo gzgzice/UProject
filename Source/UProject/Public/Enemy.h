@@ -47,12 +47,14 @@ public:
 		class ABall* ball;
 
 public:
+
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
+public:
+	
+	UPROPERTY(EditAnywhere)
+		float ballMass = 1500;
 
-
-
-		
-
-
-
+		bool bHit = false;
 };

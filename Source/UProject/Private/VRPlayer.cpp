@@ -12,7 +12,8 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
-#include "MovePoint.h"
+#include "Ball.h"
+#include <Kismet/GameplayStatics.h>
 
 
 // Sets default values
@@ -136,22 +137,25 @@ void AVRPlayer::OnLeftActionX()
 	FVector pos1 = GetActorUpVector() * -20;
 	FVector endLoc = startLoc + pos + pos1;
 	FHitResult hitInfo;
+	FCollisionQueryParams param;
+	param.AddIgnoredActor(this);
 
 	//bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECC_Visibility);
 	bool bHit = GetWorld()->SweepSingleByChannel(hitInfo, startLoc, endLoc, FQuat::Identity, ECC_Visibility,
-		FCollisionShape::MakeSphere(fireDistance));
+		FCollisionShape::MakeSphere(fireDistance), param);
 
 	if (bHit)
 	{
 		AActor* actor = hitInfo.GetActor();
 		leftLog->SetText(FText::FromString(hitInfo.GetActor()->GetName()));
 		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
-		if (actor->GetName().Contains(TEXT("Move")))
+		if (actor->GetName().Contains(TEXT("MovePoint")))
 		{
 			SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 91 );
 			startPos = leftHand->GetComponentLocation();
 		}
 	}
+	else return;
 
 }
 
@@ -203,7 +207,43 @@ void AVRPlayer::FireHand(float deltatime)
 
 	leftHand->SetWorldLocation(prediction);
 
-	FVector p = leftHand->GetComponentLocation();
+	FVector start = leftHand->GetComponentLocation();
+	FVector end = leftHand->GetComponentLocation();
+
+	DrawDebugSphere(GetWorld(), end,
+	20, 30, FColor::Cyan, false, -1, 0, 1);
+
+	FHitResult hitInfo;
+	FCollisionQueryParams param;
+	param.AddIgnoredActor(this);
+
+	bool bHitBall = GetWorld()->SweepSingleByChannel(hitInfo, start, end, FQuat::Identity, ECC_Visibility,
+		FCollisionShape::MakeSphere(20), param);
+	
+	if (bHitBall)
+	{
+		AActor* actor = hitInfo.GetActor();
+		ABall* ball = Cast<ABall>(actor);
+		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
+		
+		UPrimitiveComponent* compHit = hitInfo.GetComponent();
+		if (compHit->IsSimulatingPhysics() == true)
+		{
+			FVector dist = hitInfo.ImpactPoint - GetActorLocation();
+			FVector hitDir = compHit->GetComponentLocation() - hitInfo.ImpactPoint;
+			FVector Loc = dist + hitDir;
+			FVector force = compHit->GetMass() * Loc * 300;
+			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
+		}
+			//if (ball != nullptr)
+			//{
+			//	FVector hitLoc = hitInfo.ImpactPoint;
+			//	FVector dist = leftHand->GetComponentLocation() - hitLoc;
+			//	FVector actorDir = ball->GetActorLocation() - hitLoc;
+
+			//	ball->SetActorLocation(dist + actorDir);
+			//}
+	}
 
 	//FVector direction = startPos - leftHand->GetComponentLocation();
 	//if (direction.Length() > goalDir)

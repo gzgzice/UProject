@@ -79,21 +79,20 @@ private:
 	void FireRightHand(const struct FInputActionValue& value);
 	void FireHand(float deltatime);
 	void ReturnRightHand();
-	//void MoveAction(float deltatime);
+	void ReturnMove(float deltatime);
 
 	bool bIsDraw = false;
 	bool bIsFire = false;
 	bool bIsReturn = false;
-	FVector originPos;
+	FVector currentPos;
 	FVector startPos;
 	float goalDir = 500.0f;
 
 	UPROPERTY(EditAnywhere)
-	float speed = 1;
+	float speed = 100;
 	float axis = 0;
 	float currtime;
 	FVector handPos;
-	float cTime = 0;
 
 	TArray<FVector> lineLoc;
 };

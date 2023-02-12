@@ -12,6 +12,7 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
+#include "MovePoint.h"
 
 
 // Sets default values
@@ -132,7 +133,8 @@ void AVRPlayer::OnLeftActionX()
 
 	FVector startLoc = GetActorLocation();
 	FVector pos = GetActorForwardVector() * 500;
-	FVector endLoc = startLoc + pos;
+	FVector pos1 = GetActorUpVector() * -20;
+	FVector endLoc = startLoc + pos + pos1;
 	FHitResult hitInfo;
 
 	//bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECC_Visibility);
@@ -143,10 +145,10 @@ void AVRPlayer::OnLeftActionX()
 	{
 		AActor* actor = hitInfo.GetActor();
 		leftLog->SetText(FText::FromString(hitInfo.GetActor()->GetName()));
-		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), actor)
-		if (actor->GetName().Contains(TEXT("Point")))
+		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
+		if (actor->GetName().Contains(TEXT("Move")))
 		{
-			SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 90 );
+			SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 91 );
 			startPos = leftHand->GetComponentLocation();
 		}
 	}
@@ -162,7 +164,8 @@ void AVRPlayer::DrawLocationLine()
 {
 	FVector startLoc = GetActorLocation();
 	FVector pos = GetActorForwardVector() * 500;
-	FVector endLoc = startLoc + pos;
+	FVector pos1 = GetActorUpVector() * -20;
+	FVector endLoc = startLoc + pos + pos1;
 
 	DrawDebugSphere(GetWorld(), endLoc,
 	fireDistance, 30, FColor::Cyan, false, -1, 0, 1);

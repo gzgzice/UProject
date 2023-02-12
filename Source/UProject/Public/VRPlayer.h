@@ -69,7 +69,7 @@ public:
 		class UInputAction* rightTrigger;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		float fireDistance = 50.0f;
+		float fireDistance = 75.0f;
 
 private:
 	void OnLeftActionX();

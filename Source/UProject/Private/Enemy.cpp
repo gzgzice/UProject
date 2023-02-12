@@ -4,9 +4,7 @@
 #include "Enemy.h"
 #include "EnemyFSM.h"
 #include <Components/CapsuleComponent.h>
-#include <Components/ChildActorComponent.h>
 #include <Engine/SkeletalMesh.h>
-#include "Hand.h"
 #include <Components/BoxComponent.h>
 #include <Components/StaticMeshComponent.h>
 #include "Ball.h"
@@ -99,14 +97,17 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 void AEnemy::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	OverlappedComp = hand;
-	bHit = true;
-// 	if (OtherComp->GetName().Contains(TEXT("Ball")))
-// 	{
-// // 		FVector dir = hand->GetForwardVector();
-// // 		FVector F = ballMass * dir * 500;
-// // 		OtherComp->AddImpulse(F);
-// 		bHit = true;
-// 	}
+	if (OtherComp->GetName().Contains(TEXT("Ball")))
+	{
+// 		FVector dir = hand->GetForwardVector();
+// 		FVector F = ballMass * dir * 500;
+// 		OtherComp->AddImpulse(F);
+		bHitBall = true;
+	}
+	else
+	{
+		bHitOther = true;
+	}
 }
 
 

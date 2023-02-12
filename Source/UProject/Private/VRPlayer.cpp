@@ -131,9 +131,8 @@ void AVRPlayer::OnLeftActionX()
 	leftLog->SetText(FText::FromString(msg));
 
 	FVector startLoc = GetActorLocation();
-	FVector pos1 = GetActorUpVector() * -50;
-	FVector pos2 = GetActorForwardVector() * 500;
-	FVector endLoc = startLoc + pos1 + pos2;
+	FVector pos = GetActorForwardVector() * 500;
+	FVector endLoc = startLoc + pos;
 	FHitResult hitInfo;
 
 	//bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECC_Visibility);
@@ -144,12 +143,14 @@ void AVRPlayer::OnLeftActionX()
 	{
 		AActor* actor = hitInfo.GetActor();
 		leftLog->SetText(FText::FromString(hitInfo.GetActor()->GetName()));
+		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), actor)
 		if (actor->GetName().Contains(TEXT("Point")))
 		{
 			SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 90 );
 			startPos = leftHand->GetComponentLocation();
 		}
 	}
+
 }
 
 void AVRPlayer::ReleaseActionX()
@@ -160,9 +161,8 @@ void AVRPlayer::ReleaseActionX()
 void AVRPlayer::DrawLocationLine()
 {
 	FVector startLoc = GetActorLocation();
-	FVector pos1 = GetActorUpVector() * -50;
-	FVector pos2 = GetActorForwardVector() * 500;
-	FVector endLoc = startLoc + pos1 + pos2;
+	FVector pos = GetActorForwardVector() * 500;
+	FVector endLoc = startLoc + pos;
 
 	DrawDebugSphere(GetWorld(), endLoc,
 	fireDistance, 30, FColor::Cyan, false, -1, 0, 1);
@@ -219,7 +219,7 @@ void AVRPlayer::ReturnRightHand()
 void AVRPlayer::ReturnMove(float deltatime)
 {
 	UE_LOG(LogTemp, Error, TEXT("deltaTime = %f"), deltatime)
-	FVector returnPos = FMath::Lerp(currentPos, startPos, deltatime * 3);
+	FVector returnPos = FMath::Lerp(currentPos, startPos, deltatime * 5);
 	leftHand->SetWorldLocation(returnPos);
-	UE_LOG(LogTemp, Warning, TEXT("returnPos = %f,%f,%f"), returnPos.X, returnPos.Y, returnPos.Z);
+	//UE_LOG(LogTemp, Warning, TEXT("returnPos = %f,%f,%f"), returnPos.X, returnPos.Y, returnPos.Z);
 }

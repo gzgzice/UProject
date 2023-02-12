@@ -89,10 +89,8 @@ private:
 	float goalDir = 500.0f;
 
 	UPROPERTY(EditAnywhere)
-	float speed = 100;
+	float speed = 300;
 	float axis = 0;
 	float currtime;
 	FVector handPos;
-
-	TArray<FVector> lineLoc;
 };

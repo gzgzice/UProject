@@ -218,8 +218,8 @@ void AVRPlayer::ReturnRightHand()
 
 void AVRPlayer::ReturnMove(float deltatime)
 {
-	UE_LOG(LogTemp, Error, TEXT("deltaTime = %f"), deltatime)
+	//UE_LOG(LogTemp, Error, TEXT("deltaTime = %f"), deltatime)
 	FVector returnPos = FMath::Lerp(currentPos, startPos, deltatime * 3);
 	leftHand->SetWorldLocation(returnPos);
-	UE_LOG(LogTemp, Warning, TEXT("returnPos = %f,%f,%f"), returnPos.X, returnPos.Y, returnPos.Z);
+	//UE_LOG(LogTemp, Warning, TEXT("returnPos = %f,%f,%f"), returnPos.X, returnPos.Y, returnPos.Z);
 }

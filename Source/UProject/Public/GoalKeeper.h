@@ -46,7 +46,10 @@ public:
 public:
 
 	float ballMass = 1500;
+	float blockSpeed;
 	bool bHitBall = false;
 	bool bHitOther = false;
 	FVector dir;
+	int32 block;
+	int32 blockState;
 };

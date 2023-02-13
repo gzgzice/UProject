@@ -73,6 +73,10 @@ public:
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
 		float fireDistance = 90.0f;
+		
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
+		float goalDir = 500.0f;
+
 
 private:
 	void OnLeftActionX();
@@ -91,7 +95,6 @@ private:
 	bool bIsReturn = false;
 	FVector currentPos;
 	FVector startPos;
-	float goalDir = 500.0f;
 
 	UPROPERTY(EditAnywhere)
 	float speed = 300;

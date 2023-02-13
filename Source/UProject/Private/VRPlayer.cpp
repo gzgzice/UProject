@@ -12,6 +12,8 @@
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
 #include "InputMappingContext.h"
+#include "Ball.h"
+#include <Kismet/GameplayStatics.h>
 
 
 // Sets default values
@@ -117,7 +119,8 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	{
 		enhancedInputComponent->BindAction(leftActionX, ETriggerEvent::Started, this, &AVRPlayer::OnLeftActionX);
 		enhancedInputComponent->BindAction(leftActionX, ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionX);
-		enhancedInputComponent->BindAction(RightThumbStick, ETriggerEvent::Triggered, this, &AVRPlayer::RotateAxis);
+		enhancedInputComponent->BindAction(RightThumbStick, ETriggerEvent::Triggered, this, &AVRPlayer::RotateRightAxis);
+		enhancedInputComponent->BindAction(LeftThumbStick, ETriggerEvent::Triggered, this, &AVRPlayer::RotateLeftAxis);
 		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Triggered, this, &AVRPlayer::FireRightHand);
 		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Completed, this, &AVRPlayer::ReturnRightHand);
 	}
@@ -130,26 +133,31 @@ void AVRPlayer::OnLeftActionX()
 	FString msg = FString::Printf(TEXT("ActionX"));
 	leftLog->SetText(FText::FromString(msg));
 
-	FVector startLoc = GetActorLocation();
-	FVector pos1 = GetActorUpVector() * -50;
-	FVector pos2 = GetActorForwardVector() * 500;
-	FVector endLoc = startLoc + pos1 + pos2;
+	FVector startLoc = GetActorLocation() + GetActorForwardVector() * 300;
+	FVector pos = GetActorForwardVector() * 500;
+	//FVector pos1 = GetActorUpVector() * -20;
+	FVector endLoc = startLoc + pos;
 	FHitResult hitInfo;
+	FCollisionQueryParams param;
+	param.AddIgnoredActor(this);
 
 	//bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECC_Visibility);
 	bool bHit = GetWorld()->SweepSingleByChannel(hitInfo, startLoc, endLoc, FQuat::Identity, ECC_Visibility,
-		FCollisionShape::MakeSphere(fireDistance));
+		FCollisionShape::MakeSphere(fireDistance), param);
 
 	if (bHit)
 	{
 		AActor* actor = hitInfo.GetActor();
 		leftLog->SetText(FText::FromString(hitInfo.GetActor()->GetName()));
-		if (actor->GetName().Contains(TEXT("Point")))
+		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
+		if (actor->GetName().Contains(TEXT("MovePoint")))
 		{
-			SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 90 );
-			startPos = leftHand->GetComponentLocation();
+			SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 91 );
+			startPos = leftMotionController->GetComponentLocation();
 		}
 	}
+	else return;
+
 }
 
 void AVRPlayer::ReleaseActionX()
@@ -159,20 +167,27 @@ void AVRPlayer::ReleaseActionX()
 
 void AVRPlayer::DrawLocationLine()
 {
-	FVector startLoc = GetActorLocation();
-	FVector pos1 = GetActorUpVector() * -50;
-	FVector pos2 = GetActorForwardVector() * 500;
-	FVector endLoc = startLoc + pos1 + pos2;
+	FVector startLoc = GetActorLocation() + GetActorForwardVector() * 300;
+	FVector pos = GetActorForwardVector() * 500;
+	//FVector pos1 = GetActorUpVector() * -20;
+	FVector endLoc = startLoc + pos;
 
 	DrawDebugSphere(GetWorld(), endLoc,
 	fireDistance, 30, FColor::Cyan, false, -1, 0, 1);
 }
 
-void AVRPlayer::RotateAxis(const FInputActionValue& value)
+void AVRPlayer::RotateRightAxis(const FInputActionValue& value)
 {
 	float Axis = value.Get<float>();
 
 	AddControllerYawInput(Axis);
+}
+
+void AVRPlayer::RotateLeftAxis(const struct FInputActionValue& value)
+{
+	float Axis = value.Get<float>();
+
+	AddControllerYawInput(-Axis);
 }
 
 void AVRPlayer::FireRightHand(const FInputActionValue& value)
@@ -200,13 +215,43 @@ void AVRPlayer::FireHand(float deltatime)
 
 	leftHand->SetWorldLocation(prediction);
 
-	FVector p = leftHand->GetComponentLocation();
+	FVector start = leftHand->GetComponentLocation();
+	FVector end = leftHand->GetComponentLocation();
 
-	//FVector direction = startPos - leftHand->GetComponentLocation();
-	//if (direction.Length() > goalDir)
-	//{
-	//	ReturnRightHand();
-	//}
+	DrawDebugSphere(GetWorld(), end,
+	20, 30, FColor::Cyan, false, -1, 0, 1);
+
+	FHitResult hitInfo;
+	FCollisionQueryParams param;
+	param.AddIgnoredActor(this);
+
+	bool bHitBall = GetWorld()->SweepSingleByChannel(hitInfo, start, end, FQuat::Identity, ECC_Visibility,
+		FCollisionShape::MakeSphere(20), param);
+	
+	if (bHitBall)
+	{
+		AActor* actor = hitInfo.GetActor();
+		ABall* ball = Cast<ABall>(actor);
+		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
+		
+		UPrimitiveComponent* compHit = hitInfo.GetComponent();
+		if (compHit->IsSimulatingPhysics() == true)
+		{
+			FVector dist = hitInfo.ImpactPoint - GetActorLocation();
+			FVector hitDir = compHit->GetComponentLocation() - hitInfo.ImpactPoint;
+			FVector Loc = dist + hitDir;
+			FVector force = compHit->GetMass() * Loc * 300;
+			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
+		}
+	}
+
+	FVector direction = startPos - leftHand->GetComponentLocation();
+	if (direction.Length() > goalDir)
+	{
+		//FVector returnPos = FMath::Lerp(currentPos, startPos, deltatime * 5);
+		//leftHand->SetWorldLocation(returnPos);
+		bIsFire = false;
+	}
 }
 
 void AVRPlayer::ReturnRightHand()
@@ -219,7 +264,7 @@ void AVRPlayer::ReturnRightHand()
 void AVRPlayer::ReturnMove(float deltatime)
 {
 	UE_LOG(LogTemp, Error, TEXT("deltaTime = %f"), deltatime)
-	FVector returnPos = FMath::Lerp(currentPos, startPos, deltatime * 3);
+	FVector returnPos = FMath::Lerp(currentPos, startPos, deltatime * 5);
 	leftHand->SetWorldLocation(returnPos);
-	UE_LOG(LogTemp, Warning, TEXT("returnPos = %f,%f,%f"), returnPos.X, returnPos.Y, returnPos.Z);
+	//UE_LOG(LogTemp, Warning, TEXT("returnPos = %f,%f,%f"), returnPos.X, returnPos.Y, returnPos.Z);
 }

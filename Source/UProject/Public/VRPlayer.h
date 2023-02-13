@@ -63,23 +63,28 @@ public:
 		class UInputAction* leftActionX;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		class UInputAction* RightThumbStick;
+		class UInputAction* RightThumbStick;	
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
+		class UInputAction* LeftThumbStick;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
 		class UInputAction* rightTrigger;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		float fireDistance = 50.0f;
+		float fireDistance = 90.0f;
 
 private:
 	void OnLeftActionX();
 	void ReleaseActionX();
-	void RotateAxis(const struct FInputActionValue& value);
+	void RotateRightAxis(const struct FInputActionValue& value);
+	void RotateLeftAxis(const struct FInputActionValue& value);
 	void DrawLocationLine();
 	void FireRightHand(const struct FInputActionValue& value);
 	void FireHand(float deltatime);
 	void ReturnRightHand();
 	void ReturnMove(float deltatime);
+	//void ChangeHandLocation(float deltatime);
 
 	bool bIsDraw = false;
 	bool bIsFire = false;
@@ -89,10 +94,8 @@ private:
 	float goalDir = 500.0f;
 
 	UPROPERTY(EditAnywhere)
-	float speed = 100;
+	float speed = 300;
 	float axis = 0;
 	float currtime;
 	FVector handPos;
-
-	TArray<FVector> lineLoc;
 };

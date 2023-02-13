@@ -83,8 +83,9 @@ void AEnemy::Tick(float DeltaTime)
 	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);
 	rot.Pitch = 0;
 	rot.Roll = 0;
+	FRotator rotHand = UKismetMathLibrary::MakeRotFromX(dir);
 	SetActorRotation(rot);
-	hand->SetWorldRotation(rot);
+	hand->SetWorldRotation(rotHand);
 }
 
 // Called to bind functionality to input

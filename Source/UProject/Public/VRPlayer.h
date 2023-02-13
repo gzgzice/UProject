@@ -75,7 +75,7 @@ public:
 		float fireDistance = 90.0f;
 		
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		float goalDir = 500.0f;
+		float goalDir = 600.0f;
 
 
 private:
@@ -97,7 +97,7 @@ private:
 	FVector startPos;
 
 	UPROPERTY(EditAnywhere)
-	float speed = 300;
+	float speed = 500;
 	float axis = 0;
 	float currtime;
 	FVector handPos;

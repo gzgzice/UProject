@@ -6,7 +6,6 @@
 #include <Kismet/GameplayStatics.h>
 #include "Ball.h"
 #include "Enemy.h"
-#include "Hand.h"
 #include <Components/BoxComponent.h>
 #include "Engine/World.h"
 #include "MovePoint.h"
@@ -147,7 +146,7 @@ void UEnemyFSM::AttackState()
 	objectBall.AddObjectTypesToQuery(ECC_GameTraceChannel2);
 
 	bool bHitball = GetWorld()->LineTraceSingleByObjectType(hit, start, end, objectBall);
-	DrawDebugLine(GetWorld(),start, end, FColor::Blue, true, -1,0,1);
+	DrawDebugLine(GetWorld(),start, end, FColor::Blue, false, 3,0,1);
 	if (bHitball)
 	{
 		UPrimitiveComponent* hitBall = hit.GetComponent();
@@ -159,7 +158,7 @@ void UEnemyFSM::AttackState()
 		FVector p = FMath::Lerp(attackStart, end, a/100);
 		enemy->hand->SetWorldLocation(p);
 
-		if (enemy->bHit)
+		if (enemy->bHitBall)
 		{
 			FVector	ballLocation = hit.Component->GetComponentLocation();
 			FVector postLocation = blueGoalPost->GetActorLocation();
@@ -182,7 +181,7 @@ void UEnemyFSM::AttackState()
 			else
 			{
 				UE_LOG(LogTemp, Warning, TEXT("Go GoalPost"));
-				DrawDebugLine(GetWorld(), ballLocation, postLocation, FColor::Green, true, -1, 0, 1);
+				DrawDebugLine(GetWorld(), ballLocation, postLocation, FColor::Green, false, 3, 0, 1);
 				if (hit.Component->IsSimulatingPhysics())
 				{
 					UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());
@@ -203,7 +202,7 @@ void UEnemyFSM::AttackState()
 // 			ReturnHand();
 // 		}
 	}
-	else
+	else if(enemy->bHitOther)
 	{
 		if (FlowTime(3))
 		{
@@ -220,7 +219,8 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 	{
 	case EEnemyState::Idle:
 	{
-		enemy->bHit = false;
+		enemy->bHitBall = false;
+		enemy->bHitOther = false;
 		enemy->handMesh->SetVisibility(false);
 		UE_LOG(LogTemp, Warning, TEXT("IDLE"));
 	}

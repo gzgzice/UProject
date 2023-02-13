@@ -43,6 +43,8 @@ void AGoalKeeper::BeginPlay()
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 
 	hand->OnComponentBeginOverlap.AddDynamic(this, &AGoalKeeper::OnOverlapBegin);
+
+	UE_LOG(LogTemp, Error, TEXT("%d, %d, %d"),hand->GetComponentLocation().X, hand->GetComponentLocation().Y, hand->GetComponentLocation().Z);
 }
 
 // Called every frame
@@ -51,18 +53,24 @@ void AGoalKeeper::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	dir = ball->GetActorLocation() - GetActorLocation();
-	dir.Normalize();
+	//dir.Normalize();
 	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);
 	rot.Pitch = 0;
 	rot.Roll = 0;
 	SetActorRotation(rot);
 	hand->SetWorldRotation(rot);
-
-	int32 block = FMath::RandRange(1,100);
-	if (block > 10)
+	
+	if (dir.Length() < 1000)
 	{
-		BlockHand(DeltaTime);
+		//GetRand();
+// 		if (blockState == 0)
+// 		{
+// 			block = FMath::RandRange(1, 100);
+// 			blockState++;
+// 		}
+			BlockHand(DeltaTime*10);
 	}
+	UE_LOG(LogTemp, Warning, TEXT("%d, %d, %d"), hand->GetComponentLocation().X, hand->GetComponentLocation().Y, hand->GetComponentLocation().Z);
 }
 
 // Called to bind functionality to input
@@ -79,7 +87,7 @@ void AGoalKeeper::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	if (OtherComp->GetName().Contains(TEXT("Ball")))
 	{
 		 FVector dirBlock = GetActorForwardVector()+GetActorUpVector();
-		 FVector F = ballMass * dirBlock * 7;
+		 FVector F = ballMass * dirBlock * 1000;
 		 OtherComp->AddImpulse(F);
 		 ReturnHand();
 	}
@@ -90,14 +98,21 @@ void AGoalKeeper::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 }
 
 void AGoalKeeper::BlockHand(float speed)
-{
+{ 
+	handMesh->SetVisibility(true);
 	FVector start = hand->GetComponentLocation();
 	FVector end = ball->GetActorLocation();
 	FVector lerp = FMath::Lerp(start,end, speed);
-	hand->SetWorldLocation(lerp);
+	if (FMath::FRand() < 0.9f)
+	{
+		hand->SetWorldLocation(lerp);
+	}
 }
 
 void AGoalKeeper::ReturnHand()
 {
+	UE_LOG(LogTemp, Warning, TEXT("ReturnHand"));
+	blockState = 0;
+	handMesh->SetVisibility(false);
 	hand->SetWorldLocation(GetMesh()->GetSocketLocation(TEXT("HandPos")));
 }

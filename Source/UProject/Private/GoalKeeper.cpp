@@ -57,10 +57,11 @@ void AGoalKeeper::Tick(float DeltaTime)
 	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);
 	rot.Pitch = 0;
 	rot.Roll = 0;
+	FRotator rotHand = UKismetMathLibrary::MakeRotFromX(dir);
 	SetActorRotation(rot);
-	hand->SetWorldRotation(rot);
+	hand->SetWorldRotation(rotHand);
 	
-	if (dir.Length() < 1000)
+	if (dir.Length() < 500)
 	{
 		//GetRand();
 // 		if (blockState == 0)

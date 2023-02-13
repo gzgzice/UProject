@@ -101,7 +101,7 @@ void UEnemyFSM::MoveState()
 	FCollisionObjectQueryParams objectPlayer;
 	objectPlayer.AddObjectTypesToQuery(ECC_Pawn);
 
-	DrawDebugSphere(GetWorld(), endLoc, 75, 30, FColor::Cyan, false, 5, 0, 1);
+	//DrawDebugSphere(GetWorld(), endLoc, 75, 30, FColor::Cyan, false, 5, 0, 1);
 
 	bool bPoint = GetWorld()->SweepSingleByObjectType(hitPoint, startLoc, endLoc, FQuat::Identity, objectPoint, FCollisionShape::MakeSphere(75));
 	bool bEnemy = GetWorld()->SweepSingleByObjectType(hitEnemy, startLoc, endLoc, FQuat::Identity, objectEnemy, FCollisionShape::MakeSphere(75));
@@ -145,7 +145,7 @@ void UEnemyFSM::AttackState()
 	objectBall.AddObjectTypesToQuery(ECC_GameTraceChannel2);
 
 	bool bHitball = GetWorld()->LineTraceSingleByObjectType(hit, start, end, objectBall);
-	DrawDebugLine(GetWorld(),start, end, FColor::Blue, false, 3,0,1);
+	//DrawDebugLine(GetWorld(),start, end, FColor::Blue, false, 3,0,1);
 	if (bHitball)
 	{
 		UPrimitiveComponent* hitBall = hit.GetComponent();
@@ -180,7 +180,7 @@ void UEnemyFSM::AttackState()
 			else
 			{
 				//UE_LOG(LogTemp, Warning, TEXT("Go GoalPost"));
-				DrawDebugLine(GetWorld(), ballLocation, postLocation, FColor::Green, false, 3, 0, 1);
+				//DrawDebugLine(GetWorld(), ballLocation, postLocation, FColor::Green, false, 3, 0, 1);
 				if (hit.Component->IsSimulatingPhysics())
 				{
 					//UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());

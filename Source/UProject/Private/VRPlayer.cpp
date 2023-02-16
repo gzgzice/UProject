@@ -93,10 +93,10 @@ void AVRPlayer::Tick(float DeltaTime)
 	currentPos = leftHand->GetComponentLocation();
 	//UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), currentPos.X, currentPos.Y, currentPos.Z);
 
-	if (bIsDraw)
-	{
-		DrawLocationLine();
-	}
+// 	if (bIsDraw)
+// 	{
+// 		DrawLocationLine();
+// 	}
 
 	if (bIsFire)
 	{
@@ -206,7 +206,7 @@ void AVRPlayer::FireHand(float deltatime)
 	currtime += GetWorld()->GetDeltaSeconds();
 
 	FVector handForward = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::Y);
-	FVector handUp = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::X) * -2;
+	FVector handUp = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::X) * -1;
 
 	FVector dir = handForward + handUp;
 
@@ -218,8 +218,8 @@ void AVRPlayer::FireHand(float deltatime)
 	FVector start = leftHand->GetComponentLocation();
 	FVector end = leftHand->GetComponentLocation();
 
-	DrawDebugSphere(GetWorld(), end,
-	20, 30, FColor::Cyan, false, -1, 0, 1);
+// 	DrawDebugSphere(GetWorld(), end,
+// 	20, 30, FColor::Cyan, false, -1, 0, 1);
 
 	FHitResult hitInfo;
 	FCollisionQueryParams param;
@@ -264,7 +264,7 @@ void AVRPlayer::ReturnRightHand()
 void AVRPlayer::ReturnMove(float deltatime)
 {
 	UE_LOG(LogTemp, Error, TEXT("deltaTime = %f"), deltatime)
-	FVector returnPos = FMath::Lerp(currentPos, startPos, deltatime * 10);
+	FVector returnPos = FMath::Lerp(currentPos, startPos, deltatime * 30);
 	leftHand->SetWorldLocation(returnPos);
 	//UE_LOG(LogTemp, Warning, TEXT("returnPos = %f,%f,%f"), returnPos.X, returnPos.Y, returnPos.Z);
 }

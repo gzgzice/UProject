@@ -26,4 +26,9 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UBoxComponent* goalPost;
 
+	UPROPERTY(EditAnywhere)
+	class ABall* ball;
+
+	UPROPERTY(EditAnywhere)
+	class AUGameModeBase* gameMode;
 };

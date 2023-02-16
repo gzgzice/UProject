@@ -20,19 +20,22 @@ AGoalKeeper::AGoalKeeper()
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+	GetMesh()->SetRelativeScale3D(FVector(0.5f));
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	hand = CreateDefaultSubobject<UBoxComponent>("Hand");
 	hand->SetupAttachment(GetMesh(), TEXT("HandPos"));
 	hand->SetCollisionProfileName("HandPreset");
 	hand->SetBoxExtent(FVector(50));
-	hand->SetRelativeScale3D(FVector(0.3));
+	hand->SetRelativeScale3D(FVector(0.5));
 	hand->SetRelativeRotation(FRotator(0, 90, -90));
 
 	handMesh = CreateDefaultSubobject<UStaticMeshComponent>("HandMesh");
 	handMesh->SetupAttachment(hand);
 	handMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	handMesh->SetVisibility(false);
+	handMesh->SetRelativeRotation(FRotator(90,0,0));
+	handMesh->SetRelativeScale3D(FVector(0.4f));
 }
 
 // Called when the game starts or when spawned
@@ -106,7 +109,7 @@ void AGoalKeeper::BlockHand(float speed)
 
 void AGoalKeeper::ReturnHand()
 {
-	UE_LOG(LogTemp, Warning, TEXT("ReturnHand"));
+	//UE_LOG(LogTemp, Warning, TEXT("ReturnHand"));
 	blockState = 0;
 	handMesh->SetVisibility(false);
 	hand->SetWorldLocation(GetMesh()->GetSocketLocation(TEXT("HandPos")));

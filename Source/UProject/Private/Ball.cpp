@@ -39,6 +39,9 @@ void ABall::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	CenterBall();
+
+	ball->OnComponentBeginOverlap.AddDynamic(this, &ABall::OnOverlapBegin);
 }
 
 // Called every frame
@@ -46,5 +49,23 @@ void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	if (OtherComp->GetName().Contains(TEXT("goalPost")))
+	{
+		bGoal = true;
+		mesh->SetVisibility(false);
+		GetWorldTimerManager().SetTimer(goalHandle, this, &ABall::CenterBall, 3, false);
+	}
+}
+
+void ABall::CenterBall()
+{
+	int32 rand = FMath::RandRange(-1600, 1600);
+	ball->SetWorldLocation(FVector(0, rand, 800));
+	mesh->SetVisibility(true);
+	bGoal = false;
 }
 

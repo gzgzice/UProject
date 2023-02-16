@@ -17,37 +17,36 @@ AEnemy::AEnemy()
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
-	
+
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("EnemyPreset"));
 
-	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
-	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
+	GetMesh()->SetRelativeLocation(FVector(20, 0, -80));
+	GetMesh()->SetRelativeRotation(FRotator(0, 90, 0));
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	GetMesh()->SetRelativeScale3D(FVector(0.5f));
 
 	hand = CreateDefaultSubobject<UBoxComponent>("Hand");
 	hand->SetupAttachment(GetMesh(), TEXT("HandPos"));
 	hand->SetCollisionProfileName("HandPreset");
 	hand->SetBoxExtent(FVector(50));
-	hand->SetRelativeScale3D(FVector(0.3));
-	hand->SetRelativeRotation(FRotator(0,90,-90));
+	hand->SetRelativeScale3D(FVector(0.7));
+
 
 	handMesh = CreateDefaultSubobject<UStaticMeshComponent>("HandMesh");
 	handMesh->SetupAttachment(hand);
 	handMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	handMesh->SetVisibility(false);
-	//ConstructorHelpers::FObjectFinder
+	handMesh->SetRelativeScale3D(FVector(0.4));
+	handMesh->SetRelativeLocation(FVector(-520, 350, -410));
+	handMesh->SetRelativeRotation(FRotator(0, -90, 0));
 
-// 	hand = CreateDefaultSubobject<UChildActorComponent>(TEXT("Hand"));
-// 	hand->SetupAttachment(GetMesh(), TEXT("HandPos"));
-// 	hand->SetRelativeRotation(FRotator(0,90,-90));
-// 
-	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempSkel(TEXT("/Script/Engine.SkeletalMesh'/Engine/Tutorial/SubEditors/TutorialAssets/Character/TutorialTPP.TutorialTPP'"));
+	ConstructorHelpers::FObjectFinder<USkeletalMesh> tempSkel(TEXT("/Script/Engine.SkeletalMesh'/Game/EnemyAssets/Enemy/Enemy.Enemy'"));
 	if (tempSkel.Succeeded())
 	{
 		GetMesh()->SetSkeletalMesh(tempSkel.Object);
 	}
 
-	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Cube.Cube'"));
+	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Game/EnemyAssets/Enemy/Hand/EnemyHand.EnemyHand'"));
 	if (tempMesh.Succeeded())
 	{
 		handMesh->SetStaticMesh(tempMesh.Object);
@@ -90,7 +89,7 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AEnemy::HandOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherComp->GetName().Contains(TEXT("Ball")))
+	if (OtherActor->GetName().Contains(TEXT("Ball")))
 	{
 		bHitBall = true;
 	}

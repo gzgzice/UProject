@@ -3,6 +3,9 @@
 
 #include "GoalPost.h"
 #include <Components/BoxComponent.h>
+#include "Ball.h"
+#include <Kismet/GameplayStatics.h>
+#include "UGameModeBase.h"
 
 // Sets default values
 AGoalPost::AGoalPost()
@@ -11,6 +14,10 @@ AGoalPost::AGoalPost()
 	PrimaryActorTick.bCanEverTick = true;
 
 	goalPost = CreateDefaultSubobject<UBoxComponent>(TEXT("GoalPost"));
+	SetRootComponent(goalPost);
+	goalPost->SetBoxExtent(FVector(50));
+	goalPost->SetRelativeScale3D(FVector(8, 19.5f, 5));
+	goalPost->SetCollisionProfileName(TEXT("GoalPostPreset"));
 }
 
 // Called when the game starts or when spawned
@@ -18,6 +25,8 @@ void AGoalPost::BeginPlay()
 {
 	Super::BeginPlay();
 	
+	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
+	gameMode = Cast<AUGameModeBase>(UGameplayStatics::GetActorOfClass(GetWorld(), AUGameModeBase::StaticClass()));
 }
 
 // Called every frame

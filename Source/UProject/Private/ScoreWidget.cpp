@@ -2,6 +2,7 @@
 
 
 #include "ScoreWidget.h"
+#include <UMG/Public/Components/TextBlock.h>
 
 void UScoreWidget::NativeConstruct()
 {

@@ -14,4 +14,14 @@ class UPROJECT_API ABlueGoalPost : public AGoalPost
 {
 	GENERATED_BODY()
 	
+public:
+	
+	ABlueGoalPost();
+
+	virtual void BeginPlay() override;
+
+public:
+
+	UFUNCTION()
+		void BallOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 };

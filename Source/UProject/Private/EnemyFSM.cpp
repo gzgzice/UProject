@@ -39,6 +39,11 @@ void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
+	if (ball->bGoal == true)
+	{
+		ChangeState(EEnemyState::Idle);
+	}
+
 	switch (state)
 	{
 	case EEnemyState::Idle:
@@ -108,16 +113,16 @@ void UEnemyFSM::MoveState()
 
 	if (bEnemy || bPlayer)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Enemy or Player or Ball"));
+		//UE_LOG(LogTemp, Warning, TEXT("Enemy or Player or Ball"));
 		ChangeState(EEnemyState::Idle);
 	}
 	else
 	{
-		UE_LOG(LogTemp, Warning, TEXT("None_Enemy"));
+		//UE_LOG(LogTemp, Warning, TEXT("None_Enemy"));
 		if (bPoint)
 		{
 			AActor* actorPoint = hitPoint.GetActor();
-			UE_LOG(LogTemp, Warning, TEXT("%s"), *actorPoint->GetName());
+			//UE_LOG(LogTemp, Warning, TEXT("%s"), *actorPoint->GetName());
 			FVector arriveLoc = actorPoint->GetActorLocation();
 			arriveLoc.Z = 91;
 				if (actorPoint->GetName().Contains(TEXT("Point")))
@@ -147,7 +152,7 @@ DrawDebugLine(GetWorld(),start, end, FColor::Blue, false, 3,0,1);
 	if (bHitball)
 	{
 		UPrimitiveComponent* hitBall = hit.GetComponent();
-		UE_LOG(LogTemp, Warning, TEXT("%s"), *hit.GetComponent()->GetName());
+		//UE_LOG(LogTemp, Warning, TEXT("%s"), *hit.GetComponent()->GetName());
 		attackSpeed += GetWorld()->GetDeltaSeconds();
 		float a = FMath::Clamp(attackSpeed, 0.0f, 1.0f);
 		FVector dirForce = ball->GetActorLocation() - enemy->hand->GetComponentLocation();
@@ -164,7 +169,7 @@ DrawDebugLine(GetWorld(),start, end, FColor::Blue, false, 3,0,1);
 			{
 				if (hit.Component->IsSimulatingPhysics())
 				{
-					UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());
+					//UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());
 					FVector F = hit.GetComponent()->GetMass() * dirForce * 1500;
 					hit.GetComponent()->AddForceAtLocation(F, hit.ImpactPoint);
 					ReturnHand();
@@ -177,7 +182,7 @@ DrawDebugLine(GetWorld(),start, end, FColor::Blue, false, 3,0,1);
 			}
 			else
 			{
-				UE_LOG(LogTemp, Warning, TEXT("Go GoalPost"));
+				//UE_LOG(LogTemp, Warning, TEXT("Go GoalPost"));
 				DrawDebugLine(GetWorld(), ballLocation, postLocation, FColor::Green, false, 3, 0, 1);
 				if (hit.Component->IsSimulatingPhysics())
 				{
@@ -218,12 +223,12 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 	}
 	case EEnemyState::Search:
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SEARCH"));
+		//UE_LOG(LogTemp, Warning, TEXT("SEARCH"));
 	}
 	break;
 	case EEnemyState::Move:
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MOVE"));
+		//UE_LOG(LogTemp, Warning, TEXT("MOVE"));
 	}
 	break;
 	case EEnemyState::Attack:
@@ -232,7 +237,7 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 		y = FMath::RandRange(-100, 100);
 		z = FMath::RandRange(-100, 100);
 		enemy->handMesh->SetVisibility(true);
-		UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
+		//UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
 	}
 	break;
 	}

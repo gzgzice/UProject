@@ -24,4 +24,7 @@ public:
 	void UpdateRedScoreUI(int32 score);
 	void UpdateBlueScoreUI(int32 score);
 
+	int32 currRedScore = 0;
+	int32 currBlueScore = 0;
+
 };

@@ -72,16 +72,22 @@ public:
 		class UInputAction* rightTrigger;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		float fireDistance = 90.0f;
+		float fireDistance = 100.0f;
 		
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
 		float goalDir = 5000.0f;
 
+	UPROPERTY(EditAnywhere)
+		class UScoreWidget* scoreUI;
+
+	UPROPERTY(EditAnywhere)
+		class AScoreWidgetActor* ScoreWidgetActor;
 
 private:
 	void OnLeftActionX();
 	void ReleaseActionX();
 	void RotateRightAxis(const struct FInputActionValue& value);
+	void rightRotation();
 	void RotateLeftAxis(const struct FInputActionValue& value);
 	void DrawLocationLine();
 	void FireRightHand(const struct FInputActionValue& value);

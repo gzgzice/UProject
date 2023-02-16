@@ -46,5 +46,10 @@ void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float x = FMath::Clamp(GetActorLocation().X, startPos.X, endPos.X);
+	float y = FMath::Clamp(GetActorLocation().Y, startPos.Y, endPos.Y);
+	float z = FMath::Clamp(GetActorLocation().Z, startPos.Z, endPos.Z);
+	FVector clampLoc = FVector(x, y, z);
+	SetActorLocation(clampLoc);
 }
 

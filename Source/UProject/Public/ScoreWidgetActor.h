@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "Ball.generated.h"
+#include "ScoreWidgetActor.generated.h"
 
 UCLASS()
-class UPROJECT_API ABall : public AActor
+class UPROJECT_API AScoreWidgetActor : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	ABall();
+	AScoreWidgetActor();
 
 protected:
 	// Called when the game starts or when spawned
@@ -23,17 +23,12 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-public:
-
-	UPROPERTY(Editanywhere)
-	class USphereComponent* ball;
+	UPROPERTY(EditAnywhere)
+	class UWidgetComponent* scoreWG;
 
 	UPROPERTY(EditAnywhere)
-	class UStaticMeshComponent* mesh;
-	
-	UPROPERTY(EditAnywhere)
-	FVector startPos;
+	TSubclassOf<class UWidgetComponent> widgetComp;
 
 	UPROPERTY(EditAnywhere)
-		FVector endPos;
+	class UScoreWidget* scoreUI;
 };

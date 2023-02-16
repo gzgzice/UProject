@@ -2,6 +2,7 @@
 
 
 #include "ScoreWidget.h"
+#include "Components/TextBlock.h"
 
 void UScoreWidget::NativeConstruct()
 {
@@ -10,10 +11,14 @@ void UScoreWidget::NativeConstruct()
 
 void UScoreWidget::UpdateRedScoreUI(int32 score)
 {
-	RedScore->SetText(FText::AsNumber(score));
+	currRedScore += score;
+
+	RedScore->SetText(FText::AsNumber(currRedScore));
 }
 
 void UScoreWidget::UpdateBlueScoreUI(int32 score)
 {
-	BlueScore->SetText(FText::AsNumber(score));
+	currBlueScore += score;
+
+	BlueScore->SetText(FText::AsNumber(currBlueScore));
 }

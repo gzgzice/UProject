@@ -43,8 +43,6 @@ void AGoalKeeper::BeginPlay()
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 
 	hand->OnComponentBeginOverlap.AddDynamic(this, &AGoalKeeper::OnOverlapBegin);
-
-	UE_LOG(LogTemp, Error, TEXT("%d, %d, %d"),hand->GetComponentLocation().X, hand->GetComponentLocation().Y, hand->GetComponentLocation().Z);
 }
 
 // Called every frame
@@ -53,7 +51,6 @@ void AGoalKeeper::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	dir = ball->GetActorLocation() - GetActorLocation();
-	//dir.Normalize();
 	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);
 	rot.Pitch = 0;
 	rot.Roll = 0;
@@ -61,17 +58,14 @@ void AGoalKeeper::Tick(float DeltaTime)
 	SetActorRotation(rot);
 	hand->SetWorldRotation(rotHand);
 	
-	if (dir.Length() < 500)
+	if (dir.Length() < 800)
 	{
-		//GetRand();
-// 		if (blockState == 0)
-// 		{
-// 			block = FMath::RandRange(1, 100);
-// 			blockState++;
-// 		}
-			BlockHand(DeltaTime*10);
+		BlockHand(DeltaTime*100);
 	}
-	UE_LOG(LogTemp, Warning, TEXT("%d, %d, %d"), hand->GetComponentLocation().X, hand->GetComponentLocation().Y, hand->GetComponentLocation().Z);
+	else if(dir.Length() > 1200)
+	{
+		ReturnHand();
+	}
 }
 
 // Called to bind functionality to input

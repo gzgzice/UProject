@@ -52,14 +52,7 @@ AEnemy::AEnemy()
 	{
 		handMesh->SetStaticMesh(tempMesh.Object);
 	}
-// 	ConstructorHelpers::FClassFinder<AHand> tempHand(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/BP_Hand.BP_Hand_C'"));
-// 	if (tempHand.Succeeded())
-// 	{
-// 		child = tempHand.Class;
-// 	}
-// 
-// 
-// 	hand->SetChildActorClass(child);
+
 	fsm = CreateDefaultSubobject<UEnemyFSM>(TEXT("FSM"));
 }
 
@@ -70,7 +63,7 @@ void AEnemy::BeginPlay()
 
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 
-	hand->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::OnOverlapBegin);
+	hand->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::HandOverlapBegin);
 }
 
 // Called every frame
@@ -95,14 +88,10 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
-void AEnemy::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void AEnemy::HandOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	OverlappedComp = hand;
 	if (OtherComp->GetName().Contains(TEXT("Ball")))
 	{
-// 		FVector dir = hand->GetForwardVector();
-// 		FVector F = ballMass * dir * 500;
-// 		OtherComp->AddImpulse(F);
 		bHitBall = true;
 	}
 	else

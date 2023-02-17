@@ -52,4 +52,6 @@ public:
 	FVector dir;
 	int32 block;
 	int32 blockState;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bBlock = false;
 };

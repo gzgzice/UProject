@@ -60,11 +60,11 @@ void AGoalKeeper::Tick(float DeltaTime)
 	SetActorRotation(rot);
 	hand->SetWorldRotation(rotHand);
 	
-	if (dir.Length() < 800)
+	if (dir.Length() < 1000)
 	{
-		BlockHand(DeltaTime);
+		BlockHand(DeltaTime*5);
 	}
-	else if(dir.Length() > 1200)
+	else if(dir.Length() > 1300)
 	{
 		ReturnHand();
 	}
@@ -95,7 +95,8 @@ void AGoalKeeper::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 }
 
 void AGoalKeeper::BlockHand(float speed)
-{ 
+{	
+	bBlock = true;
 	handMesh->SetVisibility(true);
 	FVector start = hand->GetComponentLocation();
 	FVector end = ball->GetActorLocation();
@@ -112,4 +113,5 @@ void AGoalKeeper::ReturnHand()
 	blockState = 0;
 	handMesh->SetVisibility(false);
 	hand->SetWorldLocation(GetMesh()->GetSocketLocation(TEXT("HandPos")));
+	bBlock = false;
 }

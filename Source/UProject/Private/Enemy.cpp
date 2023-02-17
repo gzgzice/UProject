@@ -92,6 +92,7 @@ void AEnemy::HandOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Other
 	if (OtherActor->GetName().Contains(TEXT("Ball")))
 	{
 		bHitBall = true;
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),attackEffect,hand->GetComponentLocation(),hand->GetComponentRotation()+FRotator(90,0,0), FVector3d(0.4));
 	}
 	else
 	{

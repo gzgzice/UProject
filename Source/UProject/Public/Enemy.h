@@ -46,6 +46,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		class ABall* ball;
 
+	UPROPERTY(EditAnywhere)
+		class UParticleSystem* attackEffect;
+
 public:
 
 	UFUNCTION()

@@ -62,12 +62,23 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 		class ABlueGoalPost* blueGoalPost;
 
+	UPROPERTY(EditAnywhere)
+		class UParticleSystem* moveEffect;
+
+
 	FTimerHandle returnHandle;
 
 public:
 
 	UPROPERTY(EditAnywhere, Category = FSM)
-		float idleDelayTIme = 5;
+		float idleDelayTIme = 2;
+
+
+	UPROPERTY(EditAnywhere, Category = FSM)
+		float searchDelayTIme = 2;
+
+	UPROPERTY(EditAnywhere, Category = FSM)
+		float attackDelayTIme = 3;
 
 	float currentTime = 0;
 

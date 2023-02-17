@@ -30,13 +30,10 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* mesh;
+	
+	UPROPERTY(EditAnywhere)
+	FVector startPos;
 
-	UFUNCTION()
-		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	void CenterBall();
-
-	FTimerHandle goalHandle;
-
-	bool bGoal = false;
+	UPROPERTY(EditAnywhere)
+	FVector endPos;
 };

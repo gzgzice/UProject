@@ -6,6 +6,7 @@
 #include "UGameModeBase.h"
 #include "Ball.h"
 #include <Components/SphereComponent.h>
+#include <Kismet/GameplayStatics.h>
 
 ARedGoalPost::ARedGoalPost()
 {
@@ -23,5 +24,6 @@ void ARedGoalPost::BallOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Blue Goal!!"));
 		//gameMode->AddBlueScore(1);
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), goalEffect, GetActorTransform());
 	}
 }

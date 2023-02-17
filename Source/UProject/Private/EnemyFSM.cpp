@@ -63,9 +63,8 @@ void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorCompon
 
 void UEnemyFSM::IdleState()
 {
-	bool bComplete = FlowTime(idleDelayTIme);
-
-	if (bComplete)
+	
+	if (FlowTime(idleDelayTIme))
 	{
 		//검색 상태로 전환한다.
 		ChangeState(EEnemyState::Search);
@@ -74,19 +73,23 @@ void UEnemyFSM::IdleState()
 
 void UEnemyFSM::SearchState()
 {
-	FVector dir = ball->GetActorLocation() - enemy->GetActorLocation();
-	//1.만약 searchRange 안에 Ball 이 있다면
- 	if (dir.Length() < searchRange)
- 	{
- 		//2.공격 상태로 전환한다.
- 		ChangeState(EEnemyState::Attack);
- 	}
- 	//3.searchRange 안에 Ball 이 없다면
- 	else
- 	{
-		//4.이동 상태로 전환한다.
-		ChangeState(EEnemyState::Move);
+	if (FlowTime(searchDelayTIme))
+	{
+		FVector dir = ball->GetActorLocation() - enemy->GetActorLocation();
+		//1.만약 searchRange 안에 Ball 이 있다면
+		if (dir.Length() < searchRange)
+		{
+			//2.공격 상태로 전환한다.
+			ChangeState(EEnemyState::Attack);
+		}
+		//3.searchRange 안에 Ball 이 없다면
+		else
+		{
+			//4.이동 상태로 전환한다.
+			ChangeState(EEnemyState::Move);
+		}
 	}
+
 }
 
 void UEnemyFSM::MoveState()
@@ -105,7 +108,7 @@ void UEnemyFSM::MoveState()
 	objectPlayer.AddObjectTypesToQuery(ECC_Pawn);
 
 
-	DrawDebugSphere(GetWorld(), endLoc, 75, 30, FColor::Cyan, false, 5, 0, 1);
+	//DrawDebugSphere(GetWorld(), endLoc, 75, 30, FColor::Cyan, false, 5, 0, 1);
 
 	bool bPoint = GetWorld()->SweepSingleByObjectType(hitPoint, startLoc, endLoc, FQuat::Identity, objectPoint, FCollisionShape::MakeSphere(75));
 	bool bEnemy = GetWorld()->SweepSingleByObjectType(hitEnemy, startLoc, endLoc, FQuat::Identity, objectEnemy, FCollisionShape::MakeSphere(75));
@@ -128,6 +131,7 @@ void UEnemyFSM::MoveState()
 				if (actorPoint->GetName().Contains(TEXT("Point")))
 				{
 					enemy->SetActorLocation(arriveLoc);
+					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), moveEffect,enemy->GetActorLocation());
 					ChangeState(EEnemyState::Idle);
 				}
 		}
@@ -148,7 +152,7 @@ void UEnemyFSM::AttackState()
 
 	bool bHitball = GetWorld()->LineTraceSingleByObjectType(hit, start, end, objectBall);
 	
-DrawDebugLine(GetWorld(),start, end, FColor::Blue, false, 3,0,1);
+//DrawDebugLine(GetWorld(),start, end, FColor::Blue, false, 3,0,1);
 	if (bHitball)
 	{
 		UPrimitiveComponent* hitBall = hit.GetComponent();
@@ -183,7 +187,7 @@ DrawDebugLine(GetWorld(),start, end, FColor::Blue, false, 3,0,1);
 			else
 			{
 				//UE_LOG(LogTemp, Warning, TEXT("Go GoalPost"));
-				DrawDebugLine(GetWorld(), ballLocation, postLocation, FColor::Green, false, 3, 0, 1);
+				//DrawDebugLine(GetWorld(), ballLocation, postLocation, FColor::Green, false, 3, 0, 1);
 				if (hit.Component->IsSimulatingPhysics())
 				{
 					//UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());

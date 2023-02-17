@@ -28,13 +28,12 @@ AGoalKeeper::AGoalKeeper()
 	hand->SetCollisionProfileName("HandPreset");
 	hand->SetBoxExtent(FVector(50));
 	hand->SetRelativeScale3D(FVector(0.5));
-	hand->SetRelativeRotation(FRotator(0, 90, -90));
+
 
 	handMesh = CreateDefaultSubobject<UStaticMeshComponent>("HandMesh");
 	handMesh->SetupAttachment(hand);
 	handMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	handMesh->SetVisibility(false);
-	handMesh->SetRelativeRotation(FRotator(90,0,0));
 	handMesh->SetRelativeScale3D(FVector(0.4f));
 }
 
@@ -63,7 +62,7 @@ void AGoalKeeper::Tick(float DeltaTime)
 	
 	if (dir.Length() < 800)
 	{
-		BlockHand(DeltaTime*100);
+		BlockHand(DeltaTime);
 	}
 	else if(dir.Length() > 1200)
 	{

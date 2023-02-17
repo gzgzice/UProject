@@ -36,7 +36,7 @@ AEnemy::AEnemy()
 	handMesh->SetupAttachment(hand);
 	handMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	handMesh->SetVisibility(false);
-	handMesh->SetRelativeScale3D(FVector(0.4));
+	handMesh->SetRelativeScale3D(FVector(4));
 	handMesh->SetRelativeLocation(FVector(-520, 350, -410));
 	handMesh->SetRelativeRotation(FRotator(0, -90, 0));
 

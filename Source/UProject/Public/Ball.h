@@ -35,5 +35,5 @@ public:
 	FVector startPos;
 
 	UPROPERTY(EditAnywhere)
-		FVector endPos;
+	FVector endPos;
 };

@@ -19,6 +19,7 @@
 #include "ScoreWidgetActor.h"
 #include <UMG/Public/Components/WidgetComponent.h>
 #include <Kismet/KismetMathLibrary.h>
+#include "DirectionWidget.h"
 
 
 // Sets default values
@@ -66,6 +67,12 @@ AVRPlayer::AVRPlayer()
 	leftLog->SetHorizontalAlignment(EHTA_Center);
 	leftLog->SetVerticalAlignment(EVRTA_TextBottom);
 
+	ConstructorHelpers::FClassFinder<UDirectionWidget> tempdirUI(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprints/BP_DirectionUI.BP_DirectionUI_C'"));
+	if (tempdirUI.Succeeded())
+	{
+		dirUIFactory = tempdirUI.Class; 
+	}
+
 	bUseControllerRotationYaw = true;
 	bUseControllerRotationPitch = true;
 	bUseControllerRotationRoll = true;
@@ -92,6 +99,12 @@ void AVRPlayer::BeginPlay()
 
 	ScoreWidgetActor->scoreWG->InitWidget();
 	scoreUI = Cast<UScoreWidget>(ScoreWidgetActor->scoreWG->GetUserWidgetObject());
+
+	dirUI = CreateWidget<UDirectionWidget>(GetWorld(), dirUIFactory);
+	dirUI->AddToViewport();
+
+	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
+	ballLoc = ball->GetActorLocation();
 }
 
 // Called every frame
@@ -99,9 +112,7 @@ void AVRPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	//AGameModeBase* mode = GetWorld()->GetAuthGameMode();
-	//AUGameModeBase* currMode = Cast<AUGameModeBase>(mode);
-	//currMode->AddBlueScore(1);
+	FindAngle();
 
 	currentPos = leftHand->GetComponentLocation();
 	//UE_LOG(LogTemp, Warning, TEXT("%f,%f,%f"), currentPos.X, currentPos.Y, currentPos.Z);
@@ -132,9 +143,8 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	{
 		enhancedInputComponent->BindAction(leftActionX, ETriggerEvent::Started, this, &AVRPlayer::OnLeftActionX);
 		enhancedInputComponent->BindAction(leftActionX, ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionX);
-		enhancedInputComponent->BindAction(RightThumbStick, ETriggerEvent::Started, this, &AVRPlayer::rightRotation);
-		enhancedInputComponent->BindAction(RightThumbStick, ETriggerEvent::Completed, this, &AVRPlayer::rightRotation);
-		enhancedInputComponent->BindAction(LeftThumbStick, ETriggerEvent::Triggered, this, &AVRPlayer::RotateLeftAxis);
+		enhancedInputComponent->BindAction(RightThumbStick, ETriggerEvent::Started, this, &AVRPlayer::RotateRightAxis);
+		enhancedInputComponent->BindAction(RightThumbStick, ETriggerEvent::Completed, this, &AVRPlayer::RotateRightAxis);
 		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Triggered, this, &AVRPlayer::FireRightHand);
 		enhancedInputComponent->BindAction(rightTrigger, ETriggerEvent::Completed, this, &AVRPlayer::ReturnRightHand);
 	}
@@ -227,23 +237,23 @@ void AVRPlayer::DrawLocationLine()
 
 void AVRPlayer::RotateRightAxis(const FInputActionValue& value)
 {
+	UE_LOG(LogTemp, Error,TEXT("Rotator!!!!"));
+
 	float Axis = value.Get<float>();
 
-	AddControllerYawInput(Axis);
-}
+	UE_LOG(LogTemp, Warning, TEXT("Axis : %f"), Axis);
 
-void AVRPlayer::rightRotation()
-{
-	UE_LOG(LogTemp, Error, TEXT("Rotation_R"));
-
-	SetActorRotation(FRotator(0,90,0));
-}
-
-void AVRPlayer::RotateLeftAxis(const struct FInputActionValue& value)
-{
-	float Axis = value.Get<float>();
-
-	AddControllerYawInput(-Axis);
+	if (Axis > 0)
+	{
+		//AddControllerYawInput(-90);
+		SetActorRotation(FRotator(0, 90, 0));
+		UE_LOG(LogTemp, Error, TEXT("PlayerRotation : %f"), GetActorRotation().Yaw);
+	}
+	else
+	{
+		SetActorRotation(FRotator(0, -90, 0));
+		//AddControllerYawInput(90);
+	}
 }
 
 void AVRPlayer::FireRightHand(const FInputActionValue& value)
@@ -287,7 +297,7 @@ void AVRPlayer::FireHand(float deltatime)
 	if (bHitBall)
 	{
 		AActor* actor = hitInfo.GetActor();
-		ABall* ball = Cast<ABall>(actor);
+		ball = Cast<ABall>(actor);
 		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
 		
 		UPrimitiveComponent* compHit = hitInfo.GetComponent();
@@ -323,4 +333,26 @@ void AVRPlayer::ReturnMove(float deltatime)
 	FVector returnPos = FMath::Lerp(currentPos, startPos, deltatime * 30);
 	leftHand->SetWorldLocation(returnPos);
 	//UE_LOG(LogTemp, Warning, TEXT("returnPos = %f,%f,%f"), returnPos.X, returnPos.Y, returnPos.Z);
+}
+
+void AVRPlayer::FindAngle()
+{
+	FVector dir = ballLoc - GetActorLocation();
+	dir.Normalize();
+ 	float dotValue = FVector::DotProduct(GetActorForwardVector(), dir);
+ 	float angle = UKismetMathLibrary::DegAcos(dotValue);
+
+	FVector cross = FVector::CrossProduct(GetActorForwardVector(), dir);
+	float turnAngle = 0;
+
+	if (cross.Z < 0)
+	{
+		turnAngle = angle * -1;
+	}
+	else
+	{
+		turnAngle = angle;
+	}
+
+	dirUI->ArrowRotation(turnAngle);
 }

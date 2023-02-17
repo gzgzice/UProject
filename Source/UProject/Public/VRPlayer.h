@@ -83,17 +83,25 @@ public:
 	UPROPERTY(EditAnywhere)
 		class AScoreWidgetActor* ScoreWidgetActor;
 
+	UPROPERTY(EditAnywhere)
+		class ABall* ball;	
+		
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class UDirectionWidget> dirUIFactory;
+
+	UPROPERTY(EditAnywhere)
+		class UDirectionWidget* dirUI;
+
 private:
 	void OnLeftActionX();
 	void ReleaseActionX();
 	void RotateRightAxis(const struct FInputActionValue& value);
-	void rightRotation();
-	void RotateLeftAxis(const struct FInputActionValue& value);
 	void DrawLocationLine();
 	void FireRightHand(const struct FInputActionValue& value);
 	void FireHand(float deltatime);
 	void ReturnRightHand();
 	void ReturnMove(float deltatime);
+	void FindAngle();
 	//void ChangeHandLocation(float deltatime);
 
 	bool bIsDraw = false;
@@ -101,10 +109,10 @@ private:
 	bool bIsReturn = false;
 	FVector currentPos;
 	FVector startPos;
-
+	FVector handPos;
+	FVector ballLoc;
 	UPROPERTY(EditAnywhere)
 	float speed = 3000;
 	float axis = 0;
 	float currtime;
-	FVector handPos;
 };

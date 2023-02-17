@@ -10,8 +10,8 @@ UCLASS()
 class UPROJECT_API ABall : public AActor
 {
 	GENERATED_BODY()
-	
-public:	
+
+public:
 	// Sets default values for this actor's properties
 	ABall();
 
@@ -19,21 +19,24 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-public:	
+public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
 public:
 
 	UPROPERTY(Editanywhere)
-	class USphereComponent* ball;
+		class USphereComponent* ball;
 
 	UPROPERTY(EditAnywhere)
-	class UStaticMeshComponent* mesh;
-	
-	UPROPERTY(EditAnywhere)
-	FVector startPos;
+		class UStaticMeshComponent* mesh;
 
-	UPROPERTY(EditAnywhere)
-	FVector endPos;
+	UFUNCTION()
+		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+
+	void CenterBall();
+
+	FTimerHandle goalHandle;
+
+	bool bGoal = false;
 };

@@ -2,20 +2,43 @@
 
 
 #include "RedGoalPost.h"
-#include <Components/BoxComponent.h>
-#include "UGameModeBase.h"
-#include "Ball.h"
-#include <Components/SphereComponent.h>
-#include <Kismet/GameplayStatics.h>
+#include <Components/BoxComponent.h>		
+#include "Ball.h"		
+#include <Kismet/GameplayStatics.h>		
+#include "ScoreWidget.h"		
+#include "ScoreWidgetActor.h"		
+#include <UMG/Public/Components/WidgetComponent.h>
 
+// Sets default values
 ARedGoalPost::ARedGoalPost()
 {
-	PrimaryActorTick.bCanEverTick = false;
+ 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	PrimaryActorTick.bCanEverTick = true;
+
+	goalPost = CreateDefaultSubobject<UBoxComponent>(TEXT("GoalPost"));
+	SetRootComponent(goalPost);
+	goalPost->SetBoxExtent(FVector(50));
+	goalPost->SetRelativeScale3D(FVector(8, 19.5f, 5));
+	goalPost->SetCollisionProfileName(TEXT("GoalPostPreset"));
 }
 
+// Called when the game starts or when spawned
 void ARedGoalPost::BeginPlay()
 {
+	Super::BeginPlay();
+	
+	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
+	ScoreWidgetActor = Cast<AScoreWidgetActor>(UGameplayStatics::GetActorOfClass(GetWorld(), AScoreWidgetActor::StaticClass()));
+	scoreWidget = Cast<UScoreWidget>(ScoreWidgetActor->scoreWG->GetUserWidgetObject());
+
 	goalPost->OnComponentBeginOverlap.AddDynamic(this, &ARedGoalPost::BallOverlapBegin);
+}
+
+// Called every frame
+void ARedGoalPost::Tick(float DeltaTime)
+{
+	Super::Tick(DeltaTime);
+
 }
 
 void ARedGoalPost::BallOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -23,7 +46,8 @@ void ARedGoalPost::BallOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 	if (OtherComp->GetName().Contains(TEXT("Ball")))
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Blue Goal!!"));
-		//gameMode->AddBlueScore(1);
+		scoreWidget->UpdateRedScoreUI(1);
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), goalEffect, GetActorTransform());
 	}
 }
+

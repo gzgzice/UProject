@@ -39,7 +39,7 @@ void ABall::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	CenterBall();
+	//CenterBall();
 
 	ball->OnComponentBeginOverlap.AddDynamic(this, &ABall::OnOverlapBegin);
 }

@@ -44,5 +44,6 @@ public:
 
 	FTimerHandle goalHandle;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	bool bGoal = false;
 };

@@ -59,7 +59,7 @@ public:
 	UPROPERTY(EditAnywhere)
 		class AMovePoint* point;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere)
 		class ABlueGoalPost* blueGoalPost;
 
 	UPROPERTY(EditAnywhere)

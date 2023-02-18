@@ -110,9 +110,9 @@ void UEnemyFSM::MoveState()
 
 	//DrawDebugSphere(GetWorld(), endLoc, 75, 30, FColor::Cyan, false, 5, 0, 1);
 
-	bool bPoint = GetWorld()->SweepSingleByObjectType(hitPoint, startLoc, endLoc, FQuat::Identity, objectPoint, FCollisionShape::MakeSphere(75));
-	bool bEnemy = GetWorld()->SweepSingleByObjectType(hitEnemy, startLoc, endLoc, FQuat::Identity, objectEnemy, FCollisionShape::MakeSphere(75));
-	bool bPlayer = GetWorld()->SweepSingleByObjectType(hitPlayer, startLoc, endLoc, FQuat::Identity, objectPlayer, FCollisionShape::MakeSphere(75));
+	bool bPoint = GetWorld()->SweepSingleByObjectType(hitPoint, startLoc, endLoc, FQuat::Identity, objectPoint, FCollisionShape::MakeSphere(80));
+	bool bEnemy = GetWorld()->SweepSingleByObjectType(hitEnemy, startLoc, endLoc, FQuat::Identity, objectEnemy, FCollisionShape::MakeSphere(80));
+	bool bPlayer = GetWorld()->SweepSingleByObjectType(hitPlayer, startLoc, endLoc, FQuat::Identity, objectPlayer, FCollisionShape::MakeSphere(80));
 
 	if (bEnemy || bPlayer)
 	{
@@ -237,9 +237,9 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 	break;
 	case EEnemyState::Attack:
 	{
-		x = FMath::RandRange(-100, 100);
-		y = FMath::RandRange(-100, 100);
-		z = FMath::RandRange(-100, 100);
+		x = FMath::RandRange(-90, 90);
+		y = FMath::RandRange(-90, 90);
+		z = FMath::RandRange(-90, 90);
 		enemy->handMesh->SetVisibility(true);
 		//UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
 	}

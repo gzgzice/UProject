@@ -14,9 +14,16 @@ UCLASS()
 class UPROJECT_API UEnemyAnim : public UAnimInstance
 {
 	GENERATED_BODY()
+
+public:
+
+	virtual void NativeBeginPlay() override;
 	
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 		EEnemyState state;
+
+	UPROPERTY(EditAnywhere)
+	class AEnemy* enemy;
 };

@@ -95,7 +95,7 @@ public:
 private:
 	void OnLeftActionX();
 	void ReleaseActionX();
-	void RotateRightAxis(const struct FInputActionValue& value);
+	void RotateRightAxis();
 	void DrawLocationLine();
 	void FireRightHand(const struct FInputActionValue& value);
 	void FireHand(float deltatime);

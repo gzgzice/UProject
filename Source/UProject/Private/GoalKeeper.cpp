@@ -62,7 +62,7 @@ void AGoalKeeper::Tick(float DeltaTime)
 	
 	if (dir.Length() < 1000)
 	{
-		BlockHand(DeltaTime*10);
+		BlockHand(DeltaTime*20);
 	}
 	else if(dir.Length() > 1300)
 	{

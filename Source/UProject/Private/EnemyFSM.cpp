@@ -73,8 +73,6 @@ void UEnemyFSM::IdleState()
 
 void UEnemyFSM::SearchState()
 {
-	if (FlowTime(searchDelayTIme))
-	{
 		FVector dir = ball->GetActorLocation() - enemy->GetActorLocation();
 		//1.만약 searchRange 안에 Ball 이 있다면
 		if (dir.Length() < searchRange)
@@ -88,8 +86,6 @@ void UEnemyFSM::SearchState()
 			//4.이동 상태로 전환한다.
 			ChangeState(EEnemyState::Move);
 		}
-	}
-
 }
 
 void UEnemyFSM::MoveState()
@@ -161,7 +157,7 @@ void UEnemyFSM::AttackState()
 		float a = FMath::Clamp(attackSpeed, 0.0f, 1.0f);
 		FVector dirForce = ball->GetActorLocation() - enemy->hand->GetComponentLocation();
 		FVector attackStart = enemy->hand->GetComponentLocation();
-		FVector p = FMath::Lerp(attackStart, end, a);
+		FVector p = FMath::Lerp(attackStart, end, a/2);
 		enemy->hand->SetWorldLocation(p);
 
 		if (enemy->bHitBall)

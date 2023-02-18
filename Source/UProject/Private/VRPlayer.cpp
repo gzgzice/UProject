@@ -97,11 +97,10 @@ void AVRPlayer::BeginPlay()
 
 	startPos = leftHand->GetComponentLocation();
 
-	ScoreWidgetActor->scoreWG->InitWidget();
+	//ScoreWidgetActor->scoreWG->InitWidget();
 	scoreUI = Cast<UScoreWidget>(ScoreWidgetActor->scoreWG->GetUserWidgetObject());
 
 	dirUI = CreateWidget<UDirectionWidget>(GetWorld(), dirUIFactory);
-	dirUI->AddToViewport();
 
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 	ballLoc = ball->GetActorLocation();
@@ -111,6 +110,7 @@ void AVRPlayer::BeginPlay()
 void AVRPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
 
 	FindAngle();
 
@@ -159,36 +159,14 @@ void AVRPlayer::OnLeftActionX()
 	FString msg = FString::Printf(TEXT("ActionX"));
 	leftLog->SetText(FText::FromString(msg));
 
-	//FVector startLoc = GetActorLocation() + GetActorForwardVector() * 300;
-	//FVector pos = GetActorForwardVector() * 500;
-	////FVector pos1 = GetActorUpVector() * -20;
-	//FVector endLoc = startLoc + pos;
-	//FHitResult hitInfo;
-	//FCollisionQueryParams param;
-	//param.AddIgnoredActor(this);
-
-
 	////bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECC_Visibility);
 	//bool bHit = GetWorld()->SweepSingleByChannel(hitInfo, startLoc, endLoc, FQuat::Identity, ECC_Visibility,
 	//	FCollisionShape::MakeSphere(fireDistance), param);
 
-	//if (bHit)
-	//{
-	//	AActor* actor = hitInfo.GetActor();
-	//	leftLog->SetText(FText::FromString(hitInfo.GetActor()->GetName()));
-	//	UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
-	//	if (actor->GetName().Contains(TEXT("MovePoint")))
-	//	{
-	//		SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 91 );
-	//		startPos = leftMotionController->GetComponentLocation();
-	//	}
-	//}
-	//else return;
-
-	FVector startLoc = rightMotionController->GetComponentLocation() + GetActorForwardVector() * 300;
-	FVector pos = GetActorForwardVector() * 400;
-	FVector pos1 = GetActorUpVector() * 100;
-	FVector endLoc = startLoc + pos + pos1;
+	FVector startLoc = rightMotionController->GetComponentLocation() + rightMotionController->GetForwardVector() * 300;
+	FVector pos = rightMotionController->GetForwardVector() * 1000;
+	FVector pos1 = rightMotionController->GetUpVector() * 100;
+	FVector endLoc = startLoc + pos;
 	FHitResult hitInfo;
 	FCollisionQueryParams param;
 	param.AddIgnoredActor(this);
@@ -218,10 +196,10 @@ void AVRPlayer::ReleaseActionX()
 
 void AVRPlayer::DrawLocationLine()
 {
-	FVector startLoc = rightMotionController->GetComponentLocation() + GetActorForwardVector() * 300;
-	FVector pos = GetActorForwardVector() * 400;
-	FVector pos1 = GetActorUpVector() * 100;
-	FVector endLoc = startLoc + pos + pos1;
+	FVector startLoc = rightMotionController->GetComponentLocation() + rightMotionController->GetForwardVector() * 300;
+	FVector pos = rightMotionController->GetForwardVector() * 1000;
+	FVector pos1 = rightMotionController->GetUpVector() * 100;
+	FVector endLoc = startLoc + pos;
 
 	DrawDebugSphere(GetWorld(), endLoc,
 	fireDistance, 30, FColor::Cyan, false, -1, 0, 1);
@@ -235,25 +213,10 @@ void AVRPlayer::DrawLocationLine()
 	//fireDistance, 30, FColor::Cyan, false, -1, 0, 1);
 }
 
-void AVRPlayer::RotateRightAxis(const FInputActionValue& value)
+void AVRPlayer::RotateRightAxis()
 {
 	UE_LOG(LogTemp, Error,TEXT("Rotator!!!!"));
-
-	float Axis = value.Get<float>();
-
-	UE_LOG(LogTemp, Warning, TEXT("Axis : %f"), Axis);
-
-	if (Axis > 0)
-	{
-		//AddControllerYawInput(-90);
-		SetActorRotation(FRotator(0, 90, 0));
-		UE_LOG(LogTemp, Error, TEXT("PlayerRotation : %f"), GetActorRotation().Yaw);
-	}
-	else
-	{
-		SetActorRotation(FRotator(0, -90, 0));
-		//AddControllerYawInput(90);
-	}
+	AddControllerYawInput(90);
 }
 
 void AVRPlayer::FireRightHand(const FInputActionValue& value)
@@ -291,14 +254,14 @@ void AVRPlayer::FireHand(float deltatime)
 	FCollisionQueryParams param;
 	param.AddIgnoredActor(this);
 
-	bool bHitBall = GetWorld()->SweepSingleByChannel(hitInfo, start, end, FQuat::Identity, ECC_Visibility,
+	bool bHit = GetWorld()->SweepSingleByChannel(hitInfo, start, end, FQuat::Identity, ECC_Visibility,
 		FCollisionShape::MakeSphere(20), param);
 	
-	if (bHitBall)
+	if (bHit)
 	{
-		AActor* actor = hitInfo.GetActor();
-		ball = Cast<ABall>(actor);
-		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
+// 		AActor* actor = hitInfo.GetActor();
+// 		ball = Cast<ABall>(actor);
+//		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
 		
 		UPrimitiveComponent* compHit = hitInfo.GetComponent();
 		if (compHit->IsSimulatingPhysics() == true)
@@ -309,15 +272,18 @@ void AVRPlayer::FireHand(float deltatime)
 			FVector force = compHit->GetMass() * Loc * 300;
 			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
 		}
+		AActor* actor = hitInfo.GetActor(); 
+		if (actor->GetName().Contains(TEXT("DM")))
+		{
+			bIsFire = false;
+		}
 	}
 
-	FVector direction = startPos - leftHand->GetComponentLocation();
-	if (direction.Length() > goalDir)
-	{
-		//FVector returnPos = FMath::Lerp(currentPos, startPos, deltatime * 5);
-		//leftHand->SetWorldLocation(returnPos);
-		bIsFire = false;
-	}
+	//FVector direction = startPos - leftHand->GetComponentLocation();
+	//if (direction.Length() > goalDir)
+	//{
+	//	bIsFire = false;
+	//}
 }
 
 void AVRPlayer::ReturnRightHand()

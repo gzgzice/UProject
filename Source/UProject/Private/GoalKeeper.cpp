@@ -62,7 +62,7 @@ void AGoalKeeper::Tick(float DeltaTime)
 	
 	if (dir.Length() < 1000)
 	{
-		BlockHand(DeltaTime*5);
+		BlockHand(DeltaTime*10);
 	}
 	else if(dir.Length() > 1300)
 	{
@@ -98,9 +98,10 @@ void AGoalKeeper::BlockHand(float speed)
 {	
 	bBlock = true;
 	handMesh->SetVisibility(true);
+	clamp = FMath::Clamp(speed, 0.0f, 1.0f);
 	FVector start = hand->GetComponentLocation();
 	FVector end = ball->GetActorLocation();
-	FVector lerp = FMath::Lerp(start,end, speed);
+	FVector lerp = FMath::Lerp(start,end, clamp);
 	if (FMath::FRand() < 0.9f)
 	{
 		hand->SetWorldLocation(lerp);
@@ -110,7 +111,6 @@ void AGoalKeeper::BlockHand(float speed)
 void AGoalKeeper::ReturnHand()
 {
 	//UE_LOG(LogTemp, Warning, TEXT("ReturnHand"));
-	blockState = 0;
 	handMesh->SetVisibility(false);
 	hand->SetWorldLocation(GetMesh()->GetSocketLocation(TEXT("HandPos")));
 	bBlock = false;

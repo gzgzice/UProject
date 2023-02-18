@@ -50,8 +50,7 @@ public:
 	bool bHitBall = false;
 	bool bHitOther = false;
 	FVector dir;
-	int32 block;
-	int32 blockState;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool bBlock = false;
+	float clamp;
 };

@@ -73,7 +73,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = FSM)
 		float idleDelayTIme = 2;
 
-
 	UPROPERTY(EditAnywhere, Category = FSM)
 		float searchDelayTIme = 1;
 

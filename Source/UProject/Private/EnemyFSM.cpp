@@ -73,6 +73,8 @@ void UEnemyFSM::IdleState()
 
 void UEnemyFSM::SearchState()
 {
+	if (FlowTime(searchDelayTIme))
+	{
 		FVector dir = ball->GetActorLocation() - enemy->GetActorLocation();
 		//1.만약 searchRange 안에 Ball 이 있다면
 		if (dir.Length() < searchRange)
@@ -86,6 +88,7 @@ void UEnemyFSM::SearchState()
 			//4.이동 상태로 전환한다.
 			ChangeState(EEnemyState::Move);
 		}
+	}	
 }
 
 void UEnemyFSM::MoveState()

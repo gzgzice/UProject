@@ -10,6 +10,7 @@ void UScoreWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	//UKismetSystemLibrary::settimer
 
 }
 

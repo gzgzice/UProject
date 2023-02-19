@@ -76,9 +76,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = FSM)
 		float searchDelayTIme = 1;
 
-	UPROPERTY(EditAnywhere, Category = FSM)
-		float attackDelayTIme = 3;
-
 	float currentTime = 0;
 
 	UPROPERTY(EditAnywhere, Category = FSM)

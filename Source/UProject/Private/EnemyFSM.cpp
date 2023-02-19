@@ -222,7 +222,7 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 		enemy->bHitBall = false;
 		enemy->bHitOther = false;
 		enemy->handMesh->SetVisibility(false);
-		UE_LOG(LogTemp, Warning, TEXT("IDLE"));
+		//UE_LOG(LogTemp, Warning, TEXT("IDLE"));
 	}
 	case EEnemyState::Search:
 	{

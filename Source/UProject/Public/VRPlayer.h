@@ -33,6 +33,9 @@ public:
 		class UCameraComponent* Cam;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class UWidgetComponent* widgetComp;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
 		class UMotionControllerComponent* rightMotionController;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
@@ -42,10 +45,10 @@ public:
 		class UStaticMeshComponent* headMesh;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
-		class USkeletalMeshComponent* leftHand;
+		class UStaticMeshComponent* leftHand;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
-		class USkeletalMeshComponent* rightHand;
+		class UStaticMeshComponent* rightHand;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
 		class UTextRenderComponent* leftLog;
@@ -60,28 +63,13 @@ public:
 		class UInputMappingContext* myMapping;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		class UInputAction* leftActionX;
-
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		class UInputAction* RightThumbStick;	
-
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		class UInputAction* LeftThumbStick;
-
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		class UInputAction* rightTrigger;
-
-	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		float fireDistance = 100.0f;
+		TArray<class UInputAction*> leftInputs;	
 		
 	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
-		float goalDir = 5000.0f;
+		TArray<class UInputAction*> rightInputs;
 
-	UPROPERTY(EditAnywhere)
-		class UScoreWidget* scoreUI;
-
-	UPROPERTY(EditAnywhere)
-		class AScoreWidgetActor* ScoreWidgetActor;
+	UPROPERTY(EditAnywhere, Category = "VR_Settings|Inputs")
+		class UDirectionWidget* dirUI;
 
 	UPROPERTY(EditAnywhere)
 		class ABall* ball;	
@@ -89,28 +77,42 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class UDirectionWidget> dirUIFactory;
 
-	UPROPERTY(EditAnywhere)
-		class UDirectionWidget* dirUI;
-
 private:
-	void OnLeftActionX();
+	void OnleftActionX();
 	void ReleaseActionX();
-	void RotateRightAxis();
-	void DrawLocationLine();
+	void OnRightActionA();
+	void ReleaseActionA();
+	void RotateRight();
+	void RotateLeft();
+	void DrawLocationLine(UMotionControllerComponent* motionController);
+	void FireLeftHand(const struct FInputActionValue& value);
 	void FireRightHand(const struct FInputActionValue& value);
-	void FireHand(float deltatime);
+	void LeftHandMove(float deltatime);
+	void RightHandMove(float deltatime);
+	void ReturnLeftHand();
 	void ReturnRightHand();
-	void ReturnMove(float deltatime);
+	void ReturnMove(float deltatime, FVector startPos, FVector currPos, UStaticMeshComponent* handmesh);
 	void FindAngle();
+	//void DetectObject(USkeletalMeshComponent* handmesh, bool varName);
 	//void ChangeHandLocation(float deltatime);
 
-	bool bIsDraw = false;
-	bool bIsFire = false;
+	bool bIsLeftDraw = false;
+	bool bIsRightDraw = false;
+	bool bIsLeftFire = false;
+	bool bIsRightFire = false;
 	bool bIsReturn = false;
-	FVector currentPos;
-	FVector startPos;
+	FVector leftcurrentPos;
+	FVector rightcurrentPos;
+	FVector leftstartPos;
+	FVector rightstartPos;
 	FVector handPos;
 	FVector ballLoc;
+
+
+	UPROPERTY(EditAnywhere)
+	float fireDistance = 200.0f;
+	UPROPERTY(EditAnywhere)
+	float goalDir = 5000.0f;
 	UPROPERTY(EditAnywhere)
 	float speed = 3000;
 	float axis = 0;

@@ -28,8 +28,15 @@ public:
 		class UBoxComponent* compBox;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
-		class UBoxComponent* caughtBox;
+		class UCapsuleComponent* caughtBox;
 
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
 		class UStaticMeshComponent* compMesh;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class UStaticMeshComponent* compMesh0;
+
+	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
+		class UMaterial* floorMat;
+
 };

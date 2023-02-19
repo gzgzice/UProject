@@ -20,7 +20,7 @@ AEnemy::AEnemy()
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("EnemyPreset"));
 
-	GetMesh()->SetRelativeLocation(FVector(20, 0, -80));
+	GetMesh()->SetRelativeLocation(FVector(20, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, 90, 0));
 	GetMesh()->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	GetMesh()->SetRelativeScale3D(FVector(0.5f));

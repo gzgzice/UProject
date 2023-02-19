@@ -173,7 +173,7 @@ void UEnemyFSM::AttackState()
 				if (hit.Component->IsSimulatingPhysics())
 				{
 					//UE_LOG(LogTemp, Error, TEXT("%s"), *hit.GetComponent()->GetName());
-					FVector F = hit.GetComponent()->GetMass() * dirForce * 1500;
+					FVector F = hit.GetComponent()->GetMass() * dirForce * 1300;
 					hit.GetComponent()->AddForceAtLocation(F, hit.ImpactPoint);
 					ReturnHand();
 				}

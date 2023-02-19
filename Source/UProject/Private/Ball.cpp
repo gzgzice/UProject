@@ -49,14 +49,14 @@ void ABall::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-// 	startPos = FVector(-1350.0f, -1200.0f, 150.0f);
-// 	endPos = FVector(800.0f, 1600.0, 2850.0);
-// 
-// 	float x = FMath::Clamp(GetActorLocation().X, startPos.X, endPos.X);
-// 	float y = FMath::Clamp(GetActorLocation().Y, startPos.Y, endPos.Y);
-// 	float z = FMath::Clamp(GetActorLocation().Z, startPos.Z, endPos.Z);
-// 	FVector clampLoc = FVector(x, y, z);
-// 	SetActorLocation(clampLoc);
+	startPos = FVector(-4500, -3000, -200);
+	endPos = FVector(4500, 3000, 1600);
+
+	float x = FMath::Clamp(GetActorLocation().X, startPos.X, endPos.X);
+	float y = FMath::Clamp(GetActorLocation().Y, startPos.Y, endPos.Y);
+	float z = FMath::Clamp(GetActorLocation().Z, startPos.Z, endPos.Z);
+	FVector clampLoc = FVector(x, y, z);
+	SetActorLocation(clampLoc);
 }
 
 void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -74,6 +74,7 @@ void ABall::CenterBall()
 {
 	int32 rand = FMath::RandRange(-1600, 1600);
 	ball->SetWorldLocation(FVector(0, rand, 800));
+	ball->SetWorldRotation(FRotator(0));
 	mesh->SetVisibility(true);
 	bGoal = false;
 }

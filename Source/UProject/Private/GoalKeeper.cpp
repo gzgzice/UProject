@@ -13,7 +13,7 @@
 // Sets default values
 AGoalKeeper::AGoalKeeper()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("EnemyPreset"));
@@ -27,7 +27,7 @@ AGoalKeeper::AGoalKeeper()
 	hand->SetupAttachment(GetMesh(), TEXT("HandPos"));
 	hand->SetCollisionProfileName("HandPreset");
 	hand->SetBoxExtent(FVector(50));
-	hand->SetRelativeScale3D(FVector(0.5));
+	hand->SetRelativeScale3D(FVector(1));
 
 
 	handMesh = CreateDefaultSubobject<UStaticMeshComponent>("HandMesh");
@@ -41,7 +41,7 @@ AGoalKeeper::AGoalKeeper()
 void AGoalKeeper::BeginPlay()
 {
 	Super::BeginPlay();
-	
+
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 
 	hand->OnComponentBeginOverlap.AddDynamic(this, &AGoalKeeper::OnOverlapBegin);
@@ -59,12 +59,12 @@ void AGoalKeeper::Tick(float DeltaTime)
 	FRotator rotHand = UKismetMathLibrary::MakeRotFromX(dir);
 	SetActorRotation(rot);
 	hand->SetWorldRotation(rotHand);
-	
+
 	if (dir.Length() < 1000)
 	{
-		BlockHand(DeltaTime*20);
+		BlockHand(DeltaTime * 15);
 	}
-	else if(dir.Length() > 1300)
+	else if (dir.Length() > 1300)
 	{
 		ReturnHand();
 	}
@@ -83,10 +83,10 @@ void AGoalKeeper::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 	OverlappedComp = hand;
 	if (OtherComp->GetName().Contains(TEXT("Ball")))
 	{
-		 FVector dirBlock = GetActorForwardVector()+GetActorUpVector();
-		 FVector F = ballMass * dirBlock * 1000;
-		 OtherComp->AddImpulse(F);
-		 ReturnHand();
+		FVector dirBlock = GetActorForwardVector() + GetActorUpVector();
+		FVector F = ballMass * dirBlock * 1500;
+		OtherComp->AddImpulse(F);
+		ReturnHand();
 	}
 	else
 	{
@@ -95,15 +95,15 @@ void AGoalKeeper::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 }
 
 void AGoalKeeper::BlockHand(float speed)
-{	
-	bBlock = true;
-	handMesh->SetVisibility(true);
-	clamp = FMath::Clamp(speed, 0.0f, 1.0f);
-	FVector start = hand->GetComponentLocation();
-	FVector end = ball->GetActorLocation();
-	FVector lerp = FMath::Lerp(start,end, clamp);
+{
 	if (FMath::FRand() < 0.9f)
 	{
+		bBlock = true;
+		handMesh->SetVisibility(true);
+		clamp = FMath::Clamp(speed, 0.0f, 1.0f);
+		FVector start = hand->GetComponentLocation();
+		FVector end = ball->GetActorLocation();
+		FVector lerp = FMath::Lerp(start, end, clamp);
 		hand->SetWorldLocation(lerp);
 	}
 }

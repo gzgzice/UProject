@@ -19,6 +19,7 @@ AEnemy::AEnemy()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("EnemyPreset"));
+	GetCapsuleComponent()->SetCapsuleRadius(80);
 
 	GetMesh()->SetRelativeLocation(FVector(20, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, 90, 0));

@@ -17,6 +17,7 @@ AGoalKeeper::AGoalKeeper()
 	PrimaryActorTick.bCanEverTick = true;
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("EnemyPreset"));
+	GetCapsuleComponent()->SetCapsuleRadius(80);
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));

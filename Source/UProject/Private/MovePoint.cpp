@@ -25,30 +25,12 @@ AMovePoint::AMovePoint()
 	caughtBox->SetCapsuleRadius(20);
 	caughtBox->SetRelativeScale3D(FVector(0, 0, 68500));
 
-	compMesh0 = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Floor"));
-	compMesh0->SetupAttachment(compBox);
-	compMesh0->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	compMesh0->SetRelativeScale3D(FVector(0.8f));
-
 	compMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	compMesh->SetupAttachment(compBox);
 	compMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	compMesh->SetRelativeLocation(FVector(30, 0, 0));
-	compMesh->SetRelativeScale3D(FVector(0.05f));
+	compMesh->SetRelativeScale3D(FVector(0.5f));
 
-	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh0(TEXT("/Script/Engine.StaticMesh'/Engine/BasicShapes/Plane.Plane'"));
-	if (tempMesh0.Succeeded())
-	{
-		compMesh0->SetStaticMesh(tempMesh0.Object);
-	}
-
-	ConstructorHelpers::FObjectFinder<UMaterial> tempFloor(TEXT("/Script/Engine.Material'/Interchange/Materials/UnlitMaterial.UnlitMaterial'"));
-	if (tempFloor.Succeeded())
-	{
-		compMesh0->SetMaterial(0, tempFloor.Object);
-	}
-
-	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Game/EnemyAssets/Point/MovePoint.MovePoint'"));
+	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Game/Blueprints/Redpoint.Redpoint'"));
 	if (tempMesh.Succeeded())
 	{
 		compMesh->SetStaticMesh(tempMesh.Object);

@@ -7,6 +7,7 @@
 #include "VRPlayer.h"
 #include "Enemy.h"
 #include <Kismet/GameplayStatics.h>
+#include "CenterBallWidgetActor.h"
 
 // Sets default values
 ABall::ABall()
@@ -34,6 +35,11 @@ ABall::ABall()
 	if (tempMat.Succeeded())
 	{
 		mesh->SetMaterial(0, tempMat.Object);
+	}
+	ConstructorHelpers::FClassFinder<ACenterBallWidgetActor> tempWidget(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/BP_CenterBallWidgetActor.BP_CenterBallWidgetActor_C'"));
+	if (tempWidget.Succeeded())
+	{
+		widgetActor = tempWidget.Class;
 	}
 }
 
@@ -80,12 +86,19 @@ void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 
 void ABall::CenterBall()
 {
-	enemy->ResetPos();
-	player->ResetPos();
-	int32 rand = FMath::RandRange(-1600, 1600);
-	ball->SetWorldLocation(FVector(0, rand, 800));
-	ball->SetWorldRotation(FRotator(0));
-	mesh->SetVisibility(true);
-	bGoal = false;
+	GetWorld()->SpawnActor<ACenterBallWidgetActor>(widgetActor, FVector(0, 0, 500), FRotator(0, 180, 0));
+
+	FTimerHandle WaitHandle;
+	float WaitTime = 3.2; //시간을 설정하고
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
+		{
+			enemy->ResetPos();
+			player->ResetPos();
+			int32 rand = FMath::RandRange(-1600, 1600);
+			ball->SetWorldLocation(FVector(0, rand, 800));
+			ball->SetWorldRotation(FRotator(0));
+			mesh->SetVisibility(true);
+			bGoal = false;
+		}), WaitTime, false);
 }
 

@@ -46,7 +46,6 @@ AVRPlayer::AVRPlayer()
 	rightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("rightHand"));
 	rightHand->SetupAttachment(rightMotionController);
 	rightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	rightHand->SetRelativeRotation(FRotator(25.0f, 0.0f, 90.0f));
 
 	rightLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Right Log Text"));
 	rightLog->SetupAttachment(rightMotionController);
@@ -62,7 +61,6 @@ AVRPlayer::AVRPlayer()
 	leftHand = CreateDefaultSubobject<UStaticMeshComponent>("leftHand");
 	leftHand->SetupAttachment(leftMotionController);
 	leftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	leftHand->SetRelativeRotation(FRotator(-25.0f, 180.0f, 90.0f));
 
 	leftLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Left Log Text"));
 	leftLog->SetupAttachment(leftMotionController);
@@ -180,7 +178,7 @@ void AVRPlayer::OnleftActionX()
 	leftLog->SetText(FText::FromString(msg));
 
 	FVector startLoc = leftMotionController->GetComponentLocation() + leftMotionController->GetForwardVector() * 300;
-	FVector pos = leftMotionController->GetForwardVector() * 1000 + leftMotionController->GetUpVector() * -300;
+	FVector pos = leftMotionController->GetForwardVector() * 980 + leftMotionController->GetUpVector() * -1000;
 	FVector endLoc = startLoc + pos;
 	FHitResult hitInfo;
 	FCollisionQueryParams param;
@@ -221,7 +219,7 @@ void AVRPlayer::OnRightActionA()
 	//	FCollisionShape::MakeSphere(fireDistance), param);
 
 	FVector startLoc = rightMotionController->GetComponentLocation() + rightMotionController->GetForwardVector() * 300;
-	FVector pos = rightMotionController->GetForwardVector() * 1000 + rightMotionController->GetUpVector() * -300;
+	FVector pos = rightMotionController->GetForwardVector() * 980 + rightMotionController->GetUpVector() * -1000;
 	FVector endLoc = startLoc + pos;
 	FHitResult hitInfo;
 	FCollisionQueryParams param;
@@ -254,7 +252,7 @@ void AVRPlayer::ReleaseActionA()
 void AVRPlayer::DrawLocationLine(UMotionControllerComponent* motionController)
 {
 	FVector startLoc = motionController->GetComponentLocation() + motionController->GetForwardVector() * 300;
-	FVector pos = motionController->GetForwardVector() * 1000 + motionController->GetUpVector() * -300;
+	FVector pos = motionController->GetForwardVector() * 980 + motionController->GetUpVector() * -1000;
 	FVector endLoc = startLoc + pos;
 
 	DrawDebugSphere(GetWorld(), endLoc,
@@ -294,12 +292,10 @@ void AVRPlayer::FireRightHand(const struct FInputActionValue& value)
 
 void AVRPlayer::LeftHandMove(float deltatime)
 {
-	FVector handForward = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::Y);
-	FVector handUp = FRotationMatrix(leftHand->GetComponentRotation()).GetUnitAxis(EAxis::X) * -1;
+	//FVector down = leftHand->GetUpVector() * -1;
 
-	FVector dir = handForward + handUp;
-
-	FVector prediction = leftHand->GetComponentLocation() + dir * axis * speed * deltatime;
+	FVector prediction = leftHand->GetComponentLocation() + leftHand->GetForwardVector()
+	 * axis * speed * deltatime;
 	//UE_LOG(LogTemp,Warning,TEXT("TimeSegment : %d & FireHand FVector : %s"), timeSegment,*prediction.ToString())
 
 	leftHand->SetWorldLocation(prediction);
@@ -349,7 +345,11 @@ void AVRPlayer::LeftHandMove(float deltatime)
 
 void AVRPlayer::RightHandMove(float deltatime)
 {
-	FVector prediction = rightHand->GetComponentLocation() + rightHand->GetForwardVector() * axis * speed * deltatime;
+	//FVector down = rightHand->GetUpVector() * -1;
+
+	FVector prediction = rightHand->GetComponentLocation() + rightHand->GetForwardVector() 
+	 * axis * speed * deltatime;
+
 	rightHand->SetWorldLocation(prediction);
 
 	FVector loc = rightHand->GetComponentLocation();

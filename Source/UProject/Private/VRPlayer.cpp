@@ -95,8 +95,8 @@ void AVRPlayer::BeginPlay()
 
 	subsys->AddMappingContext(myMapping, 0);
 
-	leftstartPos = leftHand->GetComponentLocation();
-	rightstartPos = rightHand->GetComponentLocation();
+	leftstartPos = leftMotionController->GetComponentLocation();
+	rightstartPos = rightMotionController->GetComponentLocation();
 
 // 	dirUI = CreateWidget<UDirectionWidget>(GetWorld(), dirUIFactory);
 // 	dirUI->AddToViewport();
@@ -262,15 +262,19 @@ void AVRPlayer::DrawLocationLine(UMotionControllerComponent* motionController)
 void AVRPlayer::RotateRight()
 {
 	AddControllerYawInput(90);
-// 	rightstartPos = rightHand->GetComponentLocation();
-// 	leftstartPos = leftHand->GetComponentLocation();
+	rightHand->SetWorldLocation(rightMotionController->GetComponentLocation());
+	leftHand->SetWorldLocation(leftMotionController->GetComponentLocation());
+ 	rightstartPos = rightMotionController->GetComponentLocation();
+ 	leftstartPos = leftMotionController->GetComponentLocation();
 }
 
 void AVRPlayer::RotateLeft()
 {
 	AddControllerYawInput(-90);
-// 	rightstartPos = rightHand->GetComponentLocation();
-// 	leftstartPos = leftHand->GetComponentLocation();
+	rightHand->SetWorldLocation(rightMotionController->GetComponentLocation());
+	leftHand->SetWorldLocation(leftMotionController->GetComponentLocation());
+ 	rightstartPos = rightMotionController->GetComponentLocation();
+ 	leftstartPos = leftMotionController->GetComponentLocation();
 }
 
 void AVRPlayer::FireLeftHand(const FInputActionValue& value)
@@ -348,7 +352,7 @@ void AVRPlayer::RightHandMove(float deltatime)
 
 	FVector loc = rightHand->GetComponentLocation();
 
-	UE_LOG(LogTemp, Warning, TEXT("X = %f,Y = %f, Z = %f"), loc.X, loc.Y, loc.Z)
+	//UE_LOG(LogTemp, Warning, TEXT("X = %f,Y = %f, Z = %f"), loc.X, loc.Y, loc.Z)
 
  	FVector start = rightHand->GetComponentLocation();
  	FVector end = rightHand->GetComponentLocation();
@@ -433,9 +437,15 @@ void AVRPlayer::FindAngle()
 // 	}
 // 	dirUI->ArrowRotation(turnAngle);
 
- 	FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), ball->GetActorLocation());
- 	float angle = Rotator.Yaw - GetControlRotation().Yaw;
- 	dirUI->ArrowRotation(angle);
+//  	FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), ball->GetActorLocation());
+//  	float angle = Rotator.Yaw - GetControlRotation().Yaw;
+//  	dirUI->ArrowRotation(angle);
+
+	FVector dir = ball->GetActorLocation() - GetActorLocation();
+	dir.Normalize();
+	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);
+	float angle = rot.Yaw;
+	dirUI->ArrowRotation(angle);
 }
 
 // void AVRPlayer::DetectObject(USkeletalMeshComponent* handmesh, bool varName)

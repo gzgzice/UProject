@@ -1,0 +1,11 @@
+Model Information:
+* title:	Robot Hand
+* source:	https://sketchfab.com/3d-models/robot-hand-f3f2938da9c84a3c8eedc607f7435b55
+* author:	P3TroV (https://sketchfab.com/P3TroV)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Robot Hand" (https://sketchfab.com/3d-models/robot-hand-f3f2938da9c84a3c8eedc607f7435b55) by P3TroV (https://sketchfab.com/P3TroV) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)

@@ -107,6 +107,8 @@ void AVRPlayer::BeginPlay()
 	{
 		dirUI = Cast<UDirectionWidget>(widgetComp->GetWidget());
 	}
+
+	orginPos = GetActorLocation();
 }
 
 // Called every frame
@@ -195,8 +197,8 @@ void AVRPlayer::OnleftActionX()
 			if (actor->GetName().Contains(TEXT("MovePoint")))
 			{
 				SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 91);
-				rightstartPos = rightHand->GetComponentLocation();
-				leftstartPos = leftHand->GetComponentLocation();
+				rightstartPos = rightMotionController->GetComponentLocation();
+				leftstartPos = leftMotionController->GetComponentLocation();
 			}
 	}
 	else return;
@@ -236,8 +238,8 @@ void AVRPlayer::OnRightActionA()
 			if (actor->GetName().Contains(TEXT("MovePoint")))
 			{
 				SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 91);
-				rightstartPos = rightHand->GetComponentLocation();
-				leftstartPos = leftHand->GetComponentLocation();
+				rightstartPos = rightMotionController->GetComponentLocation();
+				leftstartPos = leftMotionController->GetComponentLocation();
 			}
 	}
 	else return;
@@ -492,3 +494,8 @@ void AVRPlayer::FindAngle()
 // 		varName = false;
 // 	}
 //}
+
+void AVRPlayer::ResetPos()
+{
+	SetActorLocation(orginPos);
+}

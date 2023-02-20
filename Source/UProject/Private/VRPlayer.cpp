@@ -104,6 +104,9 @@ void AVRPlayer::BeginPlay()
 
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 	ballLoc = ball->GetActorLocation();
+
+	originPos = GetActorLocation();
+	//UE_LOG(LogTemp, Error, TEXT("%d , %d, %d"), originPos.X, originPos.Y, originPos.Z);
 }
 
 // Called every frame
@@ -321,4 +324,10 @@ void AVRPlayer::FindAngle()
 	}
 
 	dirUI->ArrowRotation(turnAngle);
+}
+
+void AVRPlayer::ResetPos()
+{
+	SetActorLocation(originPos);
+	//UE_LOG(LogTemp, Warning, TEXT("%d , %d, %d"), originPos.X, originPos.Y, originPos.Z);
 }

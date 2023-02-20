@@ -28,6 +28,12 @@ public:
 	UPROPERTY(Editanywhere)
 	class USphereComponent* ball;
 
+	UPROPERTY(Editanywhere)
+		class AEnemy* enemy;
+
+	UPROPERTY(Editanywhere)
+		class AVRPlayer* player;
+
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* mesh;
 

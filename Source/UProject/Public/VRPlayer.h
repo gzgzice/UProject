@@ -92,6 +92,10 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UDirectionWidget* dirUI;
 
+public:	
+	FVector originPos;
+	void ResetPos();
+
 private:
 	void OnLeftActionX();
 	void ReleaseActionX();
@@ -103,6 +107,7 @@ private:
 	void ReturnMove(float deltatime);
 	void FindAngle();
 	//void ChangeHandLocation(float deltatime);
+	
 
 	bool bIsDraw = false;
 	bool bIsFire = false;

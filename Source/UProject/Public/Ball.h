@@ -38,6 +38,9 @@ public:
 	class UStaticMeshComponent* mesh;
 
 	UPROPERTY(EditAnywhere)
+	TSubclassOf<class ACenterBallWidgetActor> widgetActor;
+
+	UPROPERTY(EditAnywhere)
 		FVector	startPos;
 
 	UPROPERTY(EditAnywhere)

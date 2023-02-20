@@ -23,6 +23,6 @@ public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 		class UTextBlock* CountDown;
 
-		float currTime = 0;
+	
 
 };

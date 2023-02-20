@@ -77,6 +77,12 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class UDirectionWidget> dirUIFactory;
 
+public:
+	UPROPERTY(EditAnywhere)
+	FVector orginPos;
+
+	void ResetPos();
+
 private:
 	void OnleftActionX();
 	void ReleaseActionX();

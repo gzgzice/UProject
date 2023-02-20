@@ -21,17 +21,17 @@ public:
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
 	class UTextBlock* BlueScore;
 
-// 	UPROPERTY(EditAnywhere, meta = (BindWidget))
-// 		class UTextBlock* Timer;
+	UPROPERTY(EditAnywhere, meta = (BindWidget))
+		class UTextBlock* Timer;
 
 	void UpdateRedScoreUI(int32 score);
 	void UpdateBlueScoreUI(int32 score);
-// 	void GetText();
-// 	void StartTimer();
+	void GetText();
+	void StartTimer();
 
 	int32 currRedScore = 0;
 	int32 currBlueScore = 0;
-// 	int32 min = 3;
-// 	int32 sec = 0;
+	int32 min = 3;
+	int32 sec = 0;
 
 };

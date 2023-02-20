@@ -63,6 +63,9 @@ void AEnemy::BeginPlay()
 	ball = Cast<ABall>(UGameplayStatics::GetActorOfClass(GetWorld(), ABall::StaticClass()));
 
 	hand->OnComponentBeginOverlap.AddDynamic(this, &AEnemy::HandOverlapBegin);
+
+	originPos = GetActorLocation();
+	UE_LOG(LogTemp, Error, TEXT("%d , %d, %d"), originPos.X, originPos.Y, originPos.Z);
 }
 
 // Called every frame
@@ -100,4 +103,9 @@ void AEnemy::HandOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Other
 	}
 }
 
+void AEnemy::ResetPos()
+{
+	SetActorLocation(originPos);
+	UE_LOG(LogTemp, Warning, TEXT("%d , %d, %d"), originPos.X, originPos.Y, originPos.Z);
+}
 

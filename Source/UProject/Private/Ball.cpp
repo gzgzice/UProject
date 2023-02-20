@@ -4,6 +4,9 @@
 #include "Ball.h"
 #include <Components/SphereComponent.h>
 #include <Components/StaticMeshComponent.h>
+#include "VRPlayer.h"
+#include "Enemy.h"
+#include <Kismet/GameplayStatics.h>
 
 // Sets default values
 ABall::ABall()
@@ -39,7 +42,12 @@ void ABall::BeginPlay()
 {
 	Super::BeginPlay();
 	
-	CenterBall();
+	player = Cast<AVRPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), AVRPlayer::StaticClass()));
+	enemy = Cast<AEnemy>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass()));
+	
+	int32 rand = FMath::RandRange(-1600, 1600);
+	ball->SetWorldLocation(FVector(0, rand, 800));
+	ball->SetWorldRotation(FRotator(0));
 
 	ball->OnComponentBeginOverlap.AddDynamic(this, &ABall::OnOverlapBegin);
 }
@@ -72,6 +80,8 @@ void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 
 void ABall::CenterBall()
 {
+	enemy->ResetPos();
+	player->ResetPos();
 	int32 rand = FMath::RandRange(-1600, 1600);
 	ball->SetWorldLocation(FVector(0, rand, 800));
 	ball->SetWorldRotation(FRotator(0));

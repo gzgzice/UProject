@@ -54,10 +54,15 @@ public:
 	UFUNCTION()
 	void HandOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	
+	void ResetPos();
+
 public:
 	
 	UPROPERTY(EditAnywhere)
 		float ballMass = 1500;
+
+	UPROPERTY(EditAnywhere)
+		FVector originPos;
 
 		bool bHitBall = false;
 		bool bHitOther = false;

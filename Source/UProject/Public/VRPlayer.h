@@ -116,7 +116,7 @@ private:
 
 
 	UPROPERTY(EditAnywhere)
-	float fireDistance = 200.0f;
+	float fireDistance = 100.0f;
 	UPROPERTY(EditAnywhere)
 	float goalDir = 5000.0f;
 	UPROPERTY(EditAnywhere)

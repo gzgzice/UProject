@@ -36,7 +36,7 @@ void AResetBall::Tick(float DeltaTime)
 
 void AResetBall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	if (OtherActor->GetName().Contains(TEXT("Ball")))
+	if (OtherComp->GetName().Contains(TEXT("Ball")))
 	{
 		ball->CenterBall();
 	}

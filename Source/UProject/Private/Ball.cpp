@@ -52,6 +52,7 @@ void ABall::BeginPlay()
 	player = Cast<AVRPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), AVRPlayer::StaticClass()));
 	enemy = Cast<AEnemy>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass()));
 	
+	int32 rand = FMath::RandRange(-1600, 1600);
 	ball->SetWorldLocation(FVector(0, 0, 800));
 	ball->SetWorldRotation(FRotator(0));
 

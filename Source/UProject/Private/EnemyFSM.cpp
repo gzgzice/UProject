@@ -10,6 +10,8 @@
 #include "Engine/World.h"
 #include "MovePoint.h"
 #include "BlueGoalPost.h"
+#include <Particles/ParticleSystem.h>
+#include <Sound/SoundBase.h>
 
 // Sets default values for this component's properties
 UEnemyFSM::UEnemyFSM()
@@ -18,6 +20,23 @@ UEnemyFSM::UEnemyFSM()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 
+	ConstructorHelpers::FObjectFinder<UParticleSystem> tempMove(TEXT("/Script/Engine.ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_shotShockwave.P_ky_shotShockwave'"));
+	if (tempMove.Succeeded())
+	{
+		moveEffect = tempMove.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<USoundBase> tempSound1(TEXT("/Script/Engine.SoundWave'/Game/EnemySound/attacksound.attacksound'"));
+	if (tempSound1.Succeeded())
+	{
+		attackSound = tempSound1.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<USoundBase> tempSound2(TEXT("/Script/Engine.SoundWave'/Game/EnemySound/movesound.movesound'"));
+	if (tempSound2.Succeeded())
+	{
+		moveSound = tempSound2.Object;
+	}
 }
 
 
@@ -38,11 +57,6 @@ void UEnemyFSM::BeginPlay()
 void UEnemyFSM::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	if (ball->bGoal == true)
-	{
-		ChangeState(EEnemyState::Idle);
-	}
 
 	switch (state)
 	{
@@ -126,9 +140,10 @@ void UEnemyFSM::MoveState()
 			AActor* actorPoint = hitPoint.GetActor();
 			//UE_LOG(LogTemp, Warning, TEXT("%s"), *actorPoint->GetName());
 			FVector arriveLoc = actorPoint->GetActorLocation();
-			arriveLoc.Z = 91;
+			arriveLoc.Z = 90;
 				if (actorPoint->GetName().Contains(TEXT("Point")))
 				{
+					UGameplayStatics::PlaySoundAtLocation(GetWorld(), moveSound, enemy->GetActorLocation());
 					enemy->SetActorLocation(arriveLoc);
 					UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), moveEffect,enemy->GetActorLocation());
 					ChangeState(EEnemyState::Idle);
@@ -222,25 +237,26 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 		enemy->bHitBall = false;
 		enemy->bHitOther = false;
 		enemy->handMesh->SetVisibility(false);
-		//UE_LOG(LogTemp, Warning, TEXT("IDLE"));
+		UE_LOG(LogTemp, Warning, TEXT("IDLE"));
 	}
 	case EEnemyState::Search:
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("SEARCH"));
+		UE_LOG(LogTemp, Warning, TEXT("SEARCH"));
 	}
 	break;
 	case EEnemyState::Move:
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("MOVE"));
+		UE_LOG(LogTemp, Warning, TEXT("MOVE"));
 	}
 	break;
 	case EEnemyState::Attack:
 	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), attackSound, enemy->GetActorLocation());
 		x = FMath::RandRange(-90, 90);
 		y = FMath::RandRange(-90, 90);
 		z = FMath::RandRange(-90, 90);
 		enemy->handMesh->SetVisibility(true);
-		//UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
+		UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
 	}
 	break;
 	}

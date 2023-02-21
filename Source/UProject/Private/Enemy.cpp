@@ -10,6 +10,9 @@
 #include "Ball.h"
 #include <Kismet/GameplayStatics.h>
 #include <Kismet/KismetMathLibrary.h>
+#include <Animation/AnimInstance.h>
+#include <Particles/ParticleSystem.h>
+#include <Sound/SoundBase.h>
 
 
 // Sets default values
@@ -53,6 +56,24 @@ AEnemy::AEnemy()
 		handMesh->SetStaticMesh(tempMesh.Object);
 	}
 
+	ConstructorHelpers::FObjectFinder<UParticleSystem> tempAttack(TEXT("/Script/Engine.ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_laser01.P_ky_laser01'"));
+	if (tempAttack.Succeeded())
+	{
+		attackEffect = tempAttack.Object;
+	}
+
+	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Script/Engine.SoundWave'/Game/EnemySound/hitballSound.hitballSound'"));
+	if (tempSound.Succeeded())
+	{
+		hitBallSound = tempSound.Object;
+	}
+
+	ConstructorHelpers::FClassFinder<UAnimInstance> tempAnim(TEXT("/Script/Engine.AnimBlueprint'/Game/EnemyAssets/Enemy/ABP_Enemy.ABP_Enemy_C'"));
+	if (tempAnim.Succeeded())
+	{
+		GetMesh()->SetAnimInstanceClass(tempAnim.Class);
+	}
+
 	fsm = CreateDefaultSubobject<UEnemyFSM>(TEXT("FSM"));
 }
 
@@ -67,13 +88,14 @@ void AEnemy::BeginPlay()
 
 	originPos = GetActorLocation();
 	UE_LOG(LogTemp, Error, TEXT("%d , %d, %d"), originPos.X, originPos.Y, originPos.Z);
+
 }
 
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	
 	FVector dir = ball->GetActorLocation() - GetActorLocation();
 	dir.Normalize();
 	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);
@@ -96,6 +118,7 @@ void AEnemy::HandOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Other
 	if (OtherActor->GetName().Contains(TEXT("Ball")))
 	{
 		bHitBall = true;
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), hitBallSound, ball->GetActorLocation());
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(),attackEffect,hand->GetComponentLocation(),hand->GetComponentRotation()+FRotator(90,0,0), FVector3d(0.4));
 	}
 	else
@@ -106,7 +129,7 @@ void AEnemy::HandOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Other
 
 void AEnemy::ResetPos()
 {
-	SetActorLocation(originPos);
+	SetActorLocation(originPos+FVector(0,0,300));
 	UE_LOG(LogTemp, Warning, TEXT("%d , %d, %d"), originPos.X, originPos.Y, originPos.Z);
 }
 

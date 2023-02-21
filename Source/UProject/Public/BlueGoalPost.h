@@ -40,6 +40,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UParticleSystem* goalEffect;
 
+	UPROPERTY(EditAnywhere)
+		class USoundBase* goalSound;
+
 public:
 
 	UFUNCTION()

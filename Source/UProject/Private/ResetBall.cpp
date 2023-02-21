@@ -38,6 +38,7 @@ void AResetBall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 {
 	if (OtherComp->GetName().Contains(TEXT("Ball")))
 	{
+		ball->mesh->SetVisibility(false);
 		ball->CenterBall();
 	}
 }

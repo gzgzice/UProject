@@ -49,6 +49,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UParticleSystem* attackEffect;
 
+	UPROPERTY(EditAnywhere)
+		class USoundBase* hitBallSound;
+
 public:
 
 	UFUNCTION()

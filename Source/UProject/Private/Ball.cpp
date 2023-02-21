@@ -8,6 +8,7 @@
 #include "Enemy.h"
 #include <Kismet/GameplayStatics.h>
 #include "CenterBallWidgetActor.h"
+#include "EnemyFSM.h"
 
 // Sets default values
 ABall::ABall()
@@ -31,7 +32,7 @@ ABall::ABall()
 	{
 		mesh->SetStaticMesh(tempMesh.Object);
 	}
-	ConstructorHelpers::FObjectFinder<UMaterial> tempMat(TEXT("/Script/Engine.Material'/Game/StarterContent/Materials/M_Tech_Hex_Tile_Pulse.M_Tech_Hex_Tile_Pulse'"));
+	ConstructorHelpers::FObjectFinder<UMaterial> tempMat(TEXT("/Script/Engine.Material'/Game/StarterContent/Props/Materials/M_TableRound.M_TableRound'"));
 	if (tempMat.Succeeded())
 	{
 		mesh->SetMaterial(0, tempMat.Object);
@@ -51,8 +52,7 @@ void ABall::BeginPlay()
 	player = Cast<AVRPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), AVRPlayer::StaticClass()));
 	enemy = Cast<AEnemy>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass()));
 	
-	int32 rand = FMath::RandRange(-1600, 1600);
-	ball->SetWorldLocation(FVector(0, rand, 800));
+	ball->SetWorldLocation(FVector(0, 0, 800));
 	ball->SetWorldRotation(FRotator(0));
 
 	ball->OnComponentBeginOverlap.AddDynamic(this, &ABall::OnOverlapBegin);
@@ -77,7 +77,7 @@ void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 {
 	if (OtherComp->GetName().Contains(TEXT("goalPost")))
 	{
-		bGoal = true;
+		enemy->fsm->ChangeState(EEnemyState::Idle);
 		mesh->SetVisibility(false);
 		GetWorldTimerManager().SetTimer(goalHandle, this, &ABall::CenterBall, 3, false);
 		GetWorld()->GetFirstPlayerController()->PlayHapticEffect(goalHaptic, EControllerHand::AnyHand, 1, false);
@@ -87,18 +87,19 @@ void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 void ABall::CenterBall()
 {
 	GetWorld()->SpawnActor<ACenterBallWidgetActor>(widgetActor, FVector(0, 0, 500), FRotator(0, 180, 0));
+	enemy->ResetPos();
+	player->ResetPos();
+	enemy->fsm->ChangeState(EEnemyState::Idle);
 
 	FTimerHandle WaitHandle;
 	float WaitTime = 3.2; //시간을 설정하고
 	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
 		{
-			enemy->ResetPos();
-			player->ResetPos();
 			int32 rand = FMath::RandRange(-1600, 1600);
-			ball->SetWorldLocation(FVector(0, rand, 800));
+			ball->SetWorldLocation(FVector(0, 0, 800));
 			ball->SetWorldRotation(FRotator(0));
 			mesh->SetVisibility(true);
-			bGoal = false;
+			enemy->fsm->ChangeState(EEnemyState::Idle);
 		}), WaitTime, false);
 }
 

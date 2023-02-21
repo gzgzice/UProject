@@ -9,6 +9,8 @@
 #include "Ball.h"
 #include <Kismet/GameplayStatics.h>
 #include <Kismet/KismetMathLibrary.h>
+#include <Sound/SoundBase.h>
+#include <Engine/StaticMesh.h>
 
 // Sets default values
 AGoalKeeper::AGoalKeeper()
@@ -36,6 +38,18 @@ AGoalKeeper::AGoalKeeper()
 	handMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	handMesh->SetVisibility(false);
 	handMesh->SetRelativeScale3D(FVector(0.4f));
+
+	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Game/EnemyAssets/GoalKeeper/Hand/GoalKeeperHand.GoalKeeperHand'"));
+	if (tempMesh.Succeeded())
+	{
+		handMesh->SetStaticMesh(tempMesh.Object);
+	}
+
+	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Script/Engine.SoundWave'/Game/EnemySound/hitballSound.hitballSound'"));
+	if (tempSound.Succeeded())
+	{
+		hitBallSound = tempSound.Object;
+	}
 }
 
 // Called when the game starts or when spawned
@@ -81,9 +95,10 @@ void AGoalKeeper::SetupPlayerInputComponent(UInputComponent* PlayerInputComponen
 
 void AGoalKeeper::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	OverlappedComp = hand;
+	
 	if (OtherComp->GetName().Contains(TEXT("Ball")))
 	{
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), hitBallSound, ball->GetActorLocation());
 		FVector dirBlock = GetActorForwardVector() + GetActorUpVector();
 		FVector F = ballMass * dirBlock * 1500;
 		OtherComp->AddImpulse(F);

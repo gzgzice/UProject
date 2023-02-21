@@ -15,10 +15,10 @@ public:
 	virtual void NativeConstruct() override;
 
 public:
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* RedScore;	
 	
-	UPROPERTY(EditAnywhere, meta = (BindWidget))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, meta = (BindWidget))
 	class UTextBlock* BlueScore;
 
 	UPROPERTY(EditAnywhere, meta = (BindWidget))
@@ -29,7 +29,9 @@ public:
 	void GetText();
 	void StartTimer();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 currRedScore = 0;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 currBlueScore = 0;
 	int32 min = 3;
 	int32 sec = 0;

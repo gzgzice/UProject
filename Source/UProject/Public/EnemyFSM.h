@@ -44,7 +44,7 @@ public:
 
 public:
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = FSM)
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = FSM)
 		EEnemyState state;
 
 	UPROPERTY(EditAnywhere)
@@ -65,13 +65,20 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UParticleSystem* moveEffect;
 
+	UPROPERTY(EditAnywhere)
+		class USoundBase* attackSound;
+
+	UPROPERTY(EditAnywhere)
+		class USoundBase* moveSound;
+
+
 
 	FTimerHandle returnHandle;
 
 public:
 
 	UPROPERTY(EditAnywhere, Category = FSM)
-		float idleDelayTIme = 2;
+		float idleDelayTIme = 3;
 
 	UPROPERTY(EditAnywhere, Category = FSM)
 		float searchDelayTIme = 1;
@@ -88,7 +95,7 @@ public:
 		float attackSpeed = 0;
 
 		FVector returnHandLoc;
-	int32 attack = 0;
+	int32 sound = 0;
 	float x;
 	float y;
 	float z;

@@ -36,6 +36,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		class ABall* ball;
 
+	UPROPERTY(EditAnywhere)
+		class USoundBase* hitBallSound;
+
 public:
 
 	UFUNCTION()

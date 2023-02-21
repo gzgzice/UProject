@@ -14,12 +14,12 @@ ACenterBallWidgetActor::ACenterBallWidgetActor()
 	//À§Á¬ÄÄÆ÷³ÍÆ® »ý¼º
 	centerWG = CreateDefaultSubobject<UWidgetComponent>(TEXT("Widget"));
 
-// 	ConstructorHelpers::FClassFinder<UUserWidget>UserWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprints/BP_ScoreUI.BP_ScoreUI_C'"));
-// 	if (UserWidget.Succeeded())
-// 	{
-// 		scoreWG->SetWidgetClass(UserWidget.Class);
-// 		scoreWG->SetDrawSize(FVector2D(2000.0f, 1000.0f));
-// 	}
+	ConstructorHelpers::FClassFinder<UUserWidget>UserWidget(TEXT("/Script/UMGEditor.WidgetBlueprint'/Game/Blueprints/BP_CenterBallWidget.BP_CenterBallWidget_C'"));
+	if (UserWidget.Succeeded())
+	{
+		centerWG->SetWidgetClass(UserWidget.Class);
+		centerWG->SetDrawSize(FVector2D(2000.0f, 2000.0f));
+	}
 }
 
 // Called when the game starts or when spawned

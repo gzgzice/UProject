@@ -16,6 +16,7 @@ AItem::AItem()
 	sphereComp->SetupAttachment(RootComponent);
 	meshComp = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	meshComp->SetupAttachment(sphereComp);
+	meshComp->SetCollisionProfileName(TEXT("NoCollision"));
 }
 
 // Called when the game starts or when spawned
@@ -42,4 +43,6 @@ void AItem::NotifyActorBeginOverlap(AActor* OtherActor)
 		Destroy();
 	}
 }
+
+
 

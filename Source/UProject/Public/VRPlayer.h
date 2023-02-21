@@ -73,6 +73,9 @@ public:
 
 	UPROPERTY(EditAnywhere)
 		class ABall* ball;	
+
+	UPROPERTY(EditAnywhere)
+	class ABlueGoalPost* BlueGoalPost;
 		
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class UDirectionWidget> dirUIFactory;
@@ -83,7 +86,7 @@ public:
 
 	void ResetPos();
 
-private:
+public:
 	void OnleftActionX();
 	void ReleaseActionX();
 	void OnRightActionA();
@@ -99,6 +102,10 @@ private:
 	void ReturnRightHand();
 	void ReturnMove(float deltatime, FVector startPos, FVector currPos, UStaticMeshComponent* handmesh);
 	void FindAngle();
+	void DetectBall();
+	void DrawLine();
+	void DeleteLine();
+	void DrawSweep();
 	//void DetectObject(USkeletalMeshComponent* handmesh, bool varName);
 	//void ChangeHandLocation(float deltatime);
 
@@ -107,6 +114,8 @@ private:
 	bool bIsLeftFire = false;
 	bool bIsRightFire = false;
 	bool bIsReturn = false;
+	bool bisGrabLine = false;
+	bool bisSweep = false;
 	FVector leftcurrentPos;
 	FVector rightcurrentPos;
 	FVector leftstartPos;
@@ -122,5 +131,7 @@ private:
 	UPROPERTY(EditAnywhere)
 	float speed = 3000;
 	float axis = 0;
+	float Axis = 0;
 	float currtime;
+	float delta;
 };

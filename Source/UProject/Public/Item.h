@@ -30,4 +30,5 @@ public:
 
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* meshComp;
+
 };

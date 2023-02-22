@@ -60,7 +60,7 @@ void ARedGoalPost::BallOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor*
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Blue Goal!!"));
 		UGameplayStatics::PlaySound2D(GetWorld(), goalSound);
-		scoreWidget->UpdateRedScoreUI(1);
+		scoreWidget->UpdateBlueScoreUI(1);
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), goalEffect, GetActorTransform());
 	}
 }

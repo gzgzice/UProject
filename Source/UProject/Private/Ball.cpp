@@ -21,7 +21,7 @@ ABall::ABall()
 	SetRootComponent(ball);
 	ball->SetSphereRadius(160);
 	ball->SetRelativeScale3D(FVector(0.8f));
-	ball->SetSimulatePhysics(true);
+	ball->SetSimulatePhysics(false);
 	ball->SetCollisionProfileName(TEXT("BallPreset"));
 	
 	mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
@@ -76,8 +76,7 @@ void ABall::BeginPlay()
 // 			enemyArray.Add(enemy);
 // 		}
 // 	}
-
-
+	GetWorld()->SpawnActor<ACenterBallWidgetActor>(widgetActor, FVector(0, 0, 500), FRotator(0, 180, 0));
 }
 
 // Called every frame
@@ -105,6 +104,8 @@ void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 		}
 
 		mesh->SetVisibility(false);
+		ball->SetCollisionProfileName(TEXT("BallNoColl"));
+		SetActorLocation(FVector(0,0,800));
 		GetWorldTimerManager().SetTimer(goalHandle, this, &ABall::CenterBall, 3, false);
 		GetWorld()->GetFirstPlayerController()->PlayHapticEffect(goalHaptic, EControllerHand::Right, 1, false);
 		GetWorld()->GetFirstPlayerController()->PlayHapticEffect(goalHaptic, EControllerHand::Left, 1, false);
@@ -113,31 +114,37 @@ void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 
 void ABall::CenterBall()
 {
-	GetWorld()->SpawnActor<ACenterBallWidgetActor>(widgetActor, FVector(0, 0, 500), FRotator(0, 180, 0));
+		GetWorld()->SpawnActor<ACenterBallWidgetActor>(widgetActor, FVector(0, 0, 500), FRotator(0, 180, 0));
 
-	for (AEnemy* enemy : enemyArray)
-	{
-		enemy->ResetPos();
-		enemy->fsm->ChangeState(EEnemyState::Idle);
-	}
-
-	player->ResetPos();
-
-	FTimerHandle WaitHandle;
-	float WaitTime = 3.2; //시간을 설정하고
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
+		for (AEnemy* enemy : enemyArray)
 		{
+			enemy->ResetPos();
+			enemy->fsm->ChangeState(EEnemyState::Idle);
+		}
 
-			StartBall();
+		player->ResetPos();
+		ball->SetSimulatePhysics(false);
+		SetActorLocation(FVector(0, 0, 800));
+		SetActorRotation(FRotator(0));
 
-		}), WaitTime, false);
+		FTimerHandle WaitHandle;
+		float WaitTime = 3.2; //시간을 설정하고
+		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
+			{
+
+				StartBall();
+
+			}), WaitTime, false);
 }
 
 void ABall::StartBall()
 {
-	ball->SetWorldLocation(FVector(0, 0, 200));
-	ball->SetWorldRotation(FRotator(0));
+	SetActorLocation(FVector(0, 0, 200));
+	//ball->SetWorldRotation(FRotator(0));
+	SetActorRotation(FRotator(0));
+	ball->SetSimulatePhysics(true);
 	mesh->SetVisibility(true);
-	ball->AddImpulse(ball->GetMass() * GetActorUpVector() * 1000);
+	ball->AddImpulse(ball->GetMass() * GetActorUpVector() * 500);
+	ball->SetCollisionProfileName(TEXT("BallPreset"));
 }
 

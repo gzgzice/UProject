@@ -23,6 +23,7 @@ AEnemy::AEnemy()
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("EnemyPreset"));
 	GetCapsuleComponent()->SetCapsuleRadius(80);
+	GetCapsuleComponent()->SetRelativeScale3D(FVector(1.5f));
 
 	GetMesh()->SetRelativeLocation(FVector(20, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, 90, 0));

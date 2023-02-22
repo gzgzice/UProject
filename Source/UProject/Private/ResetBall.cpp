@@ -5,6 +5,7 @@
 #include <Components/BoxComponent.h>
 #include "Ball.h"
 #include <Kismet/GameplayStatics.h>
+#include <Components/SphereComponent.h>
 
 // Sets default values
 AResetBall::AResetBall()
@@ -38,7 +39,10 @@ void AResetBall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 {
 	if (OtherComp->GetName().Contains(TEXT("Ball")))
 	{
+		//UE_LOG(LogTemp, Warning, TEXT("RESET!!!!!"));
 		ball->mesh->SetVisibility(false);
+		ball->ball->SetCollisionProfileName(TEXT("BallNoColl"));
+
 		ball->CenterBall();
 	}
 }

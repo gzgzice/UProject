@@ -140,7 +140,7 @@ void UEnemyFSM::MoveState()
 			AActor* actorPoint = hitPoint.GetActor();
 			//UE_LOG(LogTemp, Warning, TEXT("%s"), *actorPoint->GetName());
 			FVector arriveLoc = actorPoint->GetActorLocation();
-			arriveLoc.Z = 90;
+			arriveLoc.Z = 135;
 				if (actorPoint->GetName().Contains(TEXT("Point")))
 				{
 					UGameplayStatics::PlaySoundAtLocation(GetWorld(), moveSound, enemy->GetActorLocation());
@@ -237,16 +237,16 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 		enemy->bHitBall = false;
 		enemy->bHitOther = false;
 		enemy->handMesh->SetVisibility(false);
-		UE_LOG(LogTemp, Warning, TEXT("IDLE"));
+		//UE_LOG(LogTemp, Warning, TEXT("IDLE"));
 	}
 	case EEnemyState::Search:
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SEARCH"));
+		//UE_LOG(LogTemp, Warning, TEXT("SEARCH"));
 	}
 	break;
 	case EEnemyState::Move:
 	{
-		UE_LOG(LogTemp, Warning, TEXT("MOVE"));
+		//UE_LOG(LogTemp, Warning, TEXT("MOVE"));
 	}
 	break;
 	case EEnemyState::Attack:
@@ -256,7 +256,7 @@ void UEnemyFSM::ChangeState(EEnemyState afterState)
 		y = FMath::RandRange(-90, 90);
 		z = FMath::RandRange(-90, 90);
 		enemy->handMesh->SetVisibility(true);
-		UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
+		//UE_LOG(LogTemp, Warning, TEXT("ATTACK"));
 	}
 	break;
 	}

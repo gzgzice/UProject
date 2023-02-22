@@ -336,7 +336,7 @@ void AVRPlayer::LeftHandMove(float deltatime)
   		ECC_GameTraceChannel8, FCollisionShape::MakeSphere(20), params);
   
   	if (bHitball)
-  	{
+  	{	
   		AActor* actor = hitInfo.GetActor();
 		ABall* hitActor = Cast<ABall>(actor);
 		if (hitActor != nullptr)

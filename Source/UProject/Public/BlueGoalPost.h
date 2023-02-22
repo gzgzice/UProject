@@ -43,6 +43,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		class USoundBase* goalSound;
 
+	UPROPERTY(EditAnywhere)
+		TArray <class AScoreWidgetActor*> WidgetActorArray;
+
 public:
 
 	UFUNCTION()

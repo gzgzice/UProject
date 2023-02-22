@@ -20,7 +20,6 @@ AScoreWidgetActor::AScoreWidgetActor()
 		scoreWG->SetWidgetClass(UserWidget.Class);
 		scoreWG->SetDrawSize(FVector2D(2000.0f, 1000.0f));
 	}
-
 }
 
 // Called when the game starts or when spawned

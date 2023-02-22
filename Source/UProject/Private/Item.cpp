@@ -40,6 +40,7 @@ void AItem::NotifyActorBeginOverlap(AActor* OtherActor)
 	AVRPlayer* player = Cast<AVRPlayer>(OtherActor);
 	if (player)
 	{
+		player->DetectBall(true);
 		Destroy();
 	}
 }

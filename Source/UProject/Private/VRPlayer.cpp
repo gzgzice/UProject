@@ -156,7 +156,8 @@ void AVRPlayer::Tick(float DeltaTime)
 	{
 		ReturnMove(DeltaTime, rightstartPos, rightcurrentPos, rightHand);
 	}
-	//FindAngle();
+	
+	FindAngle();
 }
 
 // Called to bind functionality to input
@@ -180,8 +181,8 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateRight);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::FireRightHand);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ReturnRightHand);
-		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &AVRPlayer::DetectBall);
-		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Completed, this, &AVRPlayer::DeleteLine);
+		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &AVRPlayer::PressedGrabFire);
+		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Completed, this, &AVRPlayer::ReleasedGrabFire);
 	}
 }
 
@@ -337,7 +338,11 @@ void AVRPlayer::LeftHandMove(float deltatime)
   	if (bHitball)
   	{
   		AActor* actor = hitInfo.GetActor();
-  		ball = Cast<ABall>(actor);
+		ABall* hitActor = Cast<ABall>(actor);
+		if (hitActor != nullptr)
+		{
+			ball = hitActor;
+		}
   		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
   
   			UPrimitiveComponent* compHit = hitInfo.GetComponent();
@@ -390,7 +395,11 @@ void AVRPlayer::RightHandMove(float deltatime)
  	if (bHitball)
  	{
  		AActor* actor = hitInfo.GetActor();
- 		ball = Cast<ABall>(actor);
+ 		ABall* hitActor = Cast<ABall>(actor);
+		if (hitActor != nullptr)
+		{
+			ball = hitActor;
+		}
  		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
  
  			UPrimitiveComponent* compHit = hitInfo.GetComponent();
@@ -432,8 +441,8 @@ void AVRPlayer::ReturnMove(float deltatime, FVector startPos, FVector currPos, U
 
 void AVRPlayer::FindAngle()
 {	
-// 	FVector player = FVector (GetActorLocation().X, GetActorLocation().Y, 0);
-// 	FVector target = FVector (ball->GetActorLocation().X, ball->GetActorLocation().Y, 0);
+// 	FVector player = FVector(GetActorLocation().X, GetActorLocation().Y, 0);
+// 	FVector target = FVector(ball->GetActorLocation().X, ball->GetActorLocation().Y, 0);
 // 	FVector dir = target - player;
 // 	dir.Normalize();
 // 	float dot = FVector::DotProduct(GetActorForwardVector(), dir);
@@ -446,40 +455,27 @@ void AVRPlayer::FindAngle()
 // 	{
 // 		turnAngle = -angle;
 // 	}
-// 	else if(cross.Z > 0)
+// 	else if (cross.Z > 0)
 // 	{
 // 		turnAngle = angle;
 // 	}
 // 	dirUI->ArrowRotation(turnAngle);
 
-//  	FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), ball->GetActorLocation());
-//  	float angle = Rotator.Yaw - GetControlRotation().Yaw;
-//  	dirUI->ArrowRotation(angle);
+//   	FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), ball->GetActorLocation());
+//   	float angle = Rotator.Yaw - GetControlRotation().Yaw;
+//   	dirUI->ArrowRotation(angle);
 
-	FVector dir = ball->GetActorLocation() - GetActorLocation();
-	dir.Normalize();
-	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);
-	float angle = rot.Yaw;
-	dirUI->ArrowRotation(angle);
+ 	FVector dir = ball->GetActorLocation() - GetActorLocation();
+ 	dir.Normalize();
+ 	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);
+ 	float angle = rot.Yaw;
+ 	dirUI->ArrowRotation(angle);
 }
 
-void AVRPlayer::DetectBall()
+void AVRPlayer::DetectBall(bool bValue)
 {
 	bisGrabLine = true;
-
-	FVector start = rightHand->GetComponentLocation();
-	FVector end = start + rightHand->GetForwardVector() * 1500;
-	FHitResult hitInfo;
-	FCollisionQueryParams param;
-	param.AddIgnoredActor(this);
-
-	bool bhitBall = GetWorld()->LineTraceSingleByObjectType(hitInfo, start, end, ECC_GameTraceChannel2, param);
-
-// 	if (bhitBall)
-// 	{
-// 		//공의 widgetComponentdml visible 값을 변경
-// 	}
-
+	bIsGrabPressed = bValue;
 }
 
 void AVRPlayer::DrawLine()
@@ -489,12 +485,20 @@ void AVRPlayer::DrawLine()
 	DrawDebugLine(GetWorld(), start, end, FColor::White, false, -1, 0, 1);
 }
 
-void AVRPlayer::DeleteLine()
+void AVRPlayer::PressedGrabFire()
 {
-	bisGrabLine = false;
-	bisSweep = true;
-	FVector p = rightHand->GetComponentLocation() + rightHand->GetForwardVector() * 1000 * delta;
-	rightHand->SetWorldLocation(p);
+	if (bIsGrabPressed)
+	{
+		bisGrabLine = false;
+		bisSweep = true;
+		FVector p = rightHand->GetComponentLocation() + rightHand->GetForwardVector() * 1000 * delta;
+		//FVector p = BlueGoalPost->GetActorLocation();
+		rightHand->SetWorldLocation(p);
+	}
+	else
+	{
+		bisSweep = false;
+	}
 }
 
 void AVRPlayer::DrawSweep()
@@ -521,19 +525,23 @@ void AVRPlayer::DrawSweep()
 	if (bHitball)
 	{
 		AActor* actor = hitInfo.GetActor();
-		ball = Cast<ABall>(actor);
+		ABall* hitActor = Cast<ABall>(actor);
+		if (hitActor != nullptr)
+		{
+			ball = hitActor;
+		}
 		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
 
 			UPrimitiveComponent* compHit = hitInfo.GetComponent();
 		if (compHit->IsSimulatingPhysics() == true)
 		{
 			FVector dist = hitInfo.ImpactPoint - GetActorLocation();
-			FVector hitDir = BlueGoalPost->GetActorLocation() - hitInfo.ImpactPoint;
-			FVector Loc = dist + hitDir;
+			//FVector hitDir = BlueGoalPost->GetActorLocation() - hitInfo.ImpactPoint;
+			//FVector Loc = dist + hitDir;
+			FVector Loc = BlueGoalPost->GetActorLocation();
 			FVector force = compHit->GetMass() * Loc * 300;
 			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
 			bIsRightFire = false;
-			bisSweep = false;
 		}
 	}
 	if (bHitDome)
@@ -541,8 +549,12 @@ void AVRPlayer::DrawSweep()
 		AActor* actor = hitDome.GetActor();
 		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
 			bIsRightFire = false;
-			bisSweep = false;
 	}
+}
+
+void AVRPlayer::ReleasedGrabFire()
+{
+	bIsGrabPressed = false;
 }
 
 // void AVRPlayer::DetectObject(USkeletalMeshComponent* handmesh, bool varName)

@@ -102,10 +102,11 @@ public:
 	void ReturnRightHand();
 	void ReturnMove(float deltatime, FVector startPos, FVector currPos, UStaticMeshComponent* handmesh);
 	void FindAngle();
-	void DetectBall();
+	void DetectBall(bool bValue);
 	void DrawLine();
-	void DeleteLine();
+	void PressedGrabFire();
 	void DrawSweep();
+	void ReleasedGrabFire();
 	//void DetectObject(USkeletalMeshComponent* handmesh, bool varName);
 	//void ChangeHandLocation(float deltatime);
 
@@ -116,6 +117,7 @@ public:
 	bool bIsReturn = false;
 	bool bisGrabLine = false;
 	bool bisSweep = false;
+	bool bIsGrabPressed = false;
 	FVector leftcurrentPos;
 	FVector rightcurrentPos;
 	FVector leftstartPos;

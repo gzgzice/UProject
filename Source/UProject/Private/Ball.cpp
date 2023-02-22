@@ -81,7 +81,8 @@ void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 		enemy->fsm->ChangeState(EEnemyState::Idle);
 		mesh->SetVisibility(false);
 		GetWorldTimerManager().SetTimer(goalHandle, this, &ABall::CenterBall, 3, false);
-		GetWorld()->GetFirstPlayerController()->PlayHapticEffect(goalHaptic, EControllerHand::AnyHand, 1, false);
+		GetWorld()->GetFirstPlayerController()->PlayHapticEffect(goalHaptic, EControllerHand::Right, 1, false);
+		GetWorld()->GetFirstPlayerController()->PlayHapticEffect(goalHaptic, EControllerHand::Left, 1, false);
 	}
 }
 

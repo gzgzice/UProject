@@ -96,6 +96,7 @@ void AEnemy::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 	
+	/*if(ball->)*/
 	FVector dir = ball->GetActorLocation() - GetActorLocation();
 	dir.Normalize();
 	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);

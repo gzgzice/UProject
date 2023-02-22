@@ -28,8 +28,8 @@ public:
 	UPROPERTY(Editanywhere)
 	class USphereComponent* ball;
 
-	UPROPERTY(Editanywhere)
-		class AEnemy* enemy;
+// 	UPROPERTY(Editanywhere)
+// 		class AEnemy* enemy;
 
 	UPROPERTY(Editanywhere)
 		class AVRPlayer* player;
@@ -53,9 +53,15 @@ public:
 		class UHapticFeedbackEffect_Base* goalHaptic;
 
 	void CenterBall();
+	void StartBall();
 
 	FTimerHandle goalHandle;
+	FTimerHandle startHandle;
 
 	UPROPERTY(EditAnywhere, BlueprintReadOnly)
 	bool bGoal = false;
+
+	UPROPERTY(EditAnywhere)
+	TArray<class AEnemy*> enemyArray;
+
 };

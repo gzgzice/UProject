@@ -258,19 +258,19 @@ void AVRPlayer::DrawLocationLine(UMotionControllerComponent* motionController)
 void AVRPlayer::RotateRight()
 {
 	AddControllerYawInput(90);
-	rightHand->SetWorldLocation(rightMotionController->GetComponentLocation());
-	leftHand->SetWorldLocation(leftMotionController->GetComponentLocation());
- 	rightstartPos = rightMotionController->GetComponentLocation();
- 	leftstartPos = leftMotionController->GetComponentLocation();
+	rightstartPos = rightMotionController->GetComponentLocation();
+	leftstartPos = leftMotionController->GetComponentLocation();
+	rightHand->SetWorldLocation(rightstartPos);
+	leftHand->SetWorldLocation(leftstartPos);
 }
 
 void AVRPlayer::RotateLeft()
 {
 	AddControllerYawInput(-90);
-	rightHand->SetWorldLocation(rightMotionController->GetComponentLocation());
-	leftHand->SetWorldLocation(leftMotionController->GetComponentLocation());
  	rightstartPos = rightMotionController->GetComponentLocation();
  	leftstartPos = leftMotionController->GetComponentLocation();
+	rightHand->SetWorldLocation(rightstartPos);
+	leftHand->SetWorldLocation(leftstartPos);
 }
 
 void AVRPlayer::FireLeftHand(const FInputActionValue& value)
@@ -334,7 +334,6 @@ void AVRPlayer::LeftHandMove(float deltatime)
   			FVector force = compHit->GetMass() * Loc * 150;
   			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
 			bIsLeftFire = false;
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), hitEffect, hitInfo.ImpactPoint);
   		}
   	}
   	if (bHitDome)
@@ -393,7 +392,6 @@ void AVRPlayer::RightHandMove(float deltatime)
  			FVector force = compHit->GetMass() * Loc * 150;
  			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
 			bIsRightFire = false;
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), hitEffect, hitInfo.ImpactPoint);
  		}
  	}
  	if (bHitDome)
@@ -521,7 +519,6 @@ void AVRPlayer::DrawSweep()
 			FVector force = compHit->GetMass() * Loc * 150;
 			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
 			bIsRightFire = false;
-			UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), hitEffect, hitInfo.ImpactPoint);
 		}
 	}
 	if (bHitDome)

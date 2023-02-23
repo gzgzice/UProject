@@ -156,13 +156,13 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Started, this, &AVRPlayer::OnleftActionX);
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionX);
 		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RotateLeft);
-		//enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateLeft);
+		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateLeft);
 		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::FireLeftHand);
 		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ReturnLeftHand);
 		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &AVRPlayer::OnRightActionA);
 		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionA);
 		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RotateRight);
-		//enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateRight);
+		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateRight);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::FireRightHand);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ReturnRightHand);
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &AVRPlayer::PressedGrabFire);
@@ -172,6 +172,8 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AVRPlayer::OnleftActionX()
 {
+	UGameplayStatics::PlaySound2D(GetWorld(), moveSound);
+
 	bIsLeftDraw = true;
 
 	FVector startLoc = leftMotionController->GetComponentLocation() + leftMotionController->GetForwardVector() * 300;
@@ -207,6 +209,7 @@ void AVRPlayer::ReleaseActionX()
 
 void AVRPlayer::OnRightActionA()
 {
+	UGameplayStatics::PlaySound2D(GetWorld(), moveSound);
 	bIsRightDraw = true;
 
 	////bool bHit = GetWorld()->LineTraceSingleByChannel(hitInfo, startLoc, endLoc, ECC_Visibility);
@@ -258,25 +261,26 @@ void AVRPlayer::DrawLocationLine(UMotionControllerComponent* motionController)
 void AVRPlayer::RotateRight()
 {
 	AddControllerYawInput(90);
-	rightstartPos = rightMotionController->GetComponentLocation();
-	leftstartPos = leftMotionController->GetComponentLocation();
-	rightHand->SetWorldLocation(rightstartPos);
-	leftHand->SetWorldLocation(leftstartPos);
+ 	rightHand->SetWorldLocation(rightMotionController->GetComponentLocation());
+ 	leftHand->SetWorldLocation(leftMotionController->GetComponentLocation());
+ 	rightstartPos = rightMotionController->GetComponentLocation();
+ 	leftstartPos = leftMotionController->GetComponentLocation();
 }
 
 void AVRPlayer::RotateLeft()
 {
 	AddControllerYawInput(-90);
+ 	rightHand->SetWorldLocation(rightMotionController->GetComponentLocation());
+ 	leftHand->SetWorldLocation(leftMotionController->GetComponentLocation());
  	rightstartPos = rightMotionController->GetComponentLocation();
  	leftstartPos = leftMotionController->GetComponentLocation();
-	rightHand->SetWorldLocation(rightstartPos);
-	leftHand->SetWorldLocation(leftstartPos);
 }
 
 void AVRPlayer::FireLeftHand(const FInputActionValue& value)
 {
 	axis = value.Get<float>();
 	bIsLeftFire = true;
+	bIsSound = true;
 }
 
 void AVRPlayer::FireRightHand(const struct FInputActionValue& value)
@@ -291,11 +295,15 @@ void AVRPlayer::LeftHandMove(float deltatime)
 	//FVector down = leftHand->GetUpVector() * -1;
 
 	FVector prediction = leftHand->GetComponentLocation() + leftHand->GetForwardVector()
-	 * axis * speed * deltatime;
+	 * axis * speed * delta;
 	//UE_LOG(LogTemp,Warning,TEXT("TimeSegment : %d & FireHand FVector : %s"), timeSegment,*prediction.ToString())
 
 	leftHand->SetWorldLocation(prediction);
-
+	if (bIsSound)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+	}
+	bIsSound = false;
   	FVector start = leftHand->GetComponentLocation();
   	FVector end = leftHand->GetComponentLocation();
   
@@ -334,6 +342,7 @@ void AVRPlayer::LeftHandMove(float deltatime)
   			FVector force = compHit->GetMass() * Loc * 150;
   			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
 			bIsLeftFire = false;
+			UGameplayStatics::PlaySound2D(GetWorld(), hitSound);
   		}
   	}
   	if (bHitDome)
@@ -352,6 +361,7 @@ void AVRPlayer::RightHandMove(float deltatime)
 	 * axis * speed * deltatime;
 
 	rightHand->SetWorldLocation(prediction);
+	UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
 	GetWorld()->SpawnActor<APlayerEffectActor>(fireEffect, rightHand->GetComponentLocation() + rightHand->GetForwardVector() * -10, GetActorRotation());
 
  	FVector start = rightHand->GetComponentLocation();
@@ -392,6 +402,7 @@ void AVRPlayer::RightHandMove(float deltatime)
  			FVector force = compHit->GetMass() * Loc * 150;
  			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
 			bIsRightFire = false;
+			UGameplayStatics::PlaySound2D(GetWorld(), hitSound);
  		}
  	}
  	if (bHitDome)
@@ -470,8 +481,9 @@ void AVRPlayer::PressedGrabFire()
 	{
 		bisGrabLine = false;
 		bisSweep = true;
-		FVector p = rightHand->GetComponentLocation() + rightHand->GetForwardVector() * 1000 * delta;
+		FVector p = rightHand->GetComponentLocation() + rightHand->GetForwardVector() * 5000 * delta;
 		//FVector p = ball->GetActorLocation();
+		UGameplayStatics::PlaySound2D(GetWorld(), powerhitSound);
 		rightHand->SetWorldLocation(p);
 	}
 	else
@@ -518,9 +530,10 @@ void AVRPlayer::DrawSweep()
 		{
 			FVector dist = hitInfo.ImpactPoint - GetActorLocation();
 			FVector Loc = RedGoalPost->GetActorLocation();
-			FVector force = compHit->GetMass() * Loc * 150;
+			FVector force = compHit->GetMass() * Loc * 300;
 			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
 			bIsRightFire = false;
+			UGameplayStatics::PlaySound2D(GetWorld(), explosionSound);
 		}
 	}
 	if (bHitDome)

@@ -48,7 +48,7 @@ AUI_Player::AUI_Player()
 
 	widgetPointer_right = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("Right Widget Pointer"));
 	widgetPointer_right->SetupAttachment(rightMotionController);
-	widgetPointer_right->InteractionDistance = 1000.0f;
+	widgetPointer_right->InteractionDistance = 2000.0f;
 	widgetPointer_right->bShowDebug = true;
 	widgetPointer_right->DebugColor = FColor::White;	
 

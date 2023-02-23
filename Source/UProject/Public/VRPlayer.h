@@ -50,12 +50,6 @@ public:
 	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
 		class UStaticMeshComponent* rightHand;
 
-	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
-		class UTextRenderComponent* leftLog;
-
-	UPROPERTY(EditAnywhere, Category = "VR_Settings | Components")
-		class UTextRenderComponent* rightLog;
-
 	UPROPERTY(EditAnywhere, Category = "VR_Setting | Component")
 		TEnumAsByte <enum EHMDTrackingOrigin::Type> trackOrigin;
 
@@ -75,10 +69,10 @@ public:
 		class ABall* ball;	
 
 	UPROPERTY(EditAnywhere)
-	class ABlueGoalPost* BlueGoalPost;
-		
+		class ARedGoalPost* RedGoalPost;
+
 	UPROPERTY(EditAnywhere)
-		TSubclassOf<class UDirectionWidget> dirUIFactory;
+		class UParticleSystem* hitEffect;	
 
 public:
 	UPROPERTY(EditAnywhere)
@@ -107,8 +101,6 @@ public:
 	void PressedGrabFire();
 	void DrawSweep();
 	void ReleasedGrabFire();
-	//void DetectObject(USkeletalMeshComponent* handmesh, bool varName);
-	//void ChangeHandLocation(float deltatime);
 
 	bool bIsLeftDraw = false;
 	bool bIsRightDraw = false;
@@ -131,7 +123,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	float goalDir = 5000.0f;
 	UPROPERTY(EditAnywhere)
-	float speed = 3000;
+	float speed = 8000;
 	float axis = 0;
 	float Axis = 0;
 	float currtime;

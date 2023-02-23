@@ -37,13 +37,6 @@ AUI_Player::AUI_Player()
 	rightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	rightHand->SetRelativeRotation(FRotator(25.0f, 0.0f, 90.0f));
 
-	rightLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Right Log Text"));
-	rightLog->SetupAttachment(rightMotionController);
-	rightLog->SetRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
-	rightLog->SetTextRenderColor(FColor::Yellow);
-	rightLog->SetHorizontalAlignment(EHTA_Center);
-	rightLog->SetVerticalAlignment(EVRTA_TextBottom);
-
 	leftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("leftController"));
 	leftMotionController->SetupAttachment(RootComponent);
 	leftMotionController->MotionSource = "Left";
@@ -53,18 +46,11 @@ AUI_Player::AUI_Player()
 	leftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	leftHand->SetRelativeRotation(FRotator(-25.0f, 180.0f, 90.0f));
 
-	leftLog = CreateDefaultSubobject<UTextRenderComponent>(TEXT("Left Log Text"));
-	leftLog->SetupAttachment(leftMotionController);
-	leftLog->SetRelativeRotation(FRotator(0.0f, 180.0f, 0.0f));
-	leftLog->SetTextRenderColor(FColor::Yellow);
-	leftLog->SetHorizontalAlignment(EHTA_Center);
-	leftLog->SetVerticalAlignment(EVRTA_TextBottom);
-
-	widgetPointer_right = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("Widget Pointer"));
+	widgetPointer_right = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("Right Widget Pointer"));
 	widgetPointer_right->SetupAttachment(rightMotionController);
-	widgetPointer_right->InteractionDistance = 2000.0f;
+	widgetPointer_right->InteractionDistance = 1000.0f;
 	widgetPointer_right->bShowDebug = true;
-	widgetPointer_right->DebugColor = FColor::White;
+	widgetPointer_right->DebugColor = FColor::White;	
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
 

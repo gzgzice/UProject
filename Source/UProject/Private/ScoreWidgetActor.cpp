@@ -20,7 +20,6 @@ AScoreWidgetActor::AScoreWidgetActor()
 		scoreWG->SetWidgetClass(UserWidget.Class);
 		scoreWG->SetDrawSize(FVector2D(2000.0f, 1000.0f));
 	}
-
 }
 
 // Called when the game starts or when spawned
@@ -28,7 +27,7 @@ void AScoreWidgetActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//scoreUI = CreateWidget<UScoreWidget>(GetWorld(), widgetComp);
+	scoreUI = Cast<UScoreWidget>(scoreWG->GetUserWidgetObject());
 	
 }
 
@@ -37,5 +36,15 @@ void AScoreWidgetActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AScoreWidgetActor::ReceiveBlueScore(int32 score)
+{
+	scoreUI->UpdateBlueScoreUI(score);
+}
+
+void AScoreWidgetActor::ReceiveRedScore(int32 score)
+{
+	scoreUI->UpdateRedScoreUI(score);
 }
 

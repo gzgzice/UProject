@@ -33,6 +33,6 @@ private:
 	class AUI_Player* player;
 
 	void ClickWidget();
-	void ReleaseWidget();
+	void ReleaseWidget();	
 		
 };

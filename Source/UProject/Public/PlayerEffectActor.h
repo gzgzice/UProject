@@ -4,16 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
-#include "ScoreWidgetActor.generated.h"
+#include "PlayerEffectActor.generated.h"
 
 UCLASS()
-class UPROJECT_API AScoreWidgetActor : public AActor
+class UPROJECT_API APlayerEffectActor : public AActor
 {
 	GENERATED_BODY()
 	
 public:	
 	// Sets default values for this actor's properties
-	AScoreWidgetActor();
+	APlayerEffectActor();
 
 protected:
 	// Called when the game starts or when spawned
@@ -24,11 +24,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
-	class UWidgetComponent* scoreWG;
-
-	UPROPERTY(EditAnywhere)
-	class UScoreWidget* scoreUI;
-
-	void ReceiveBlueScore(int32 score);
-	void ReceiveRedScore(int32 score);
+	class UParticleSystem* playerEffect;
 };

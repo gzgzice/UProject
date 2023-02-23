@@ -9,6 +9,7 @@
 #include <Kismet/GameplayStatics.h>
 #include "CenterBallWidgetActor.h"
 #include "EnemyFSM.h"
+#include "EngineUtils.h"
 
 // Sets default values
 ABall::ABall()
@@ -20,12 +21,13 @@ ABall::ABall()
 	SetRootComponent(ball);
 	ball->SetSphereRadius(160);
 	ball->SetRelativeScale3D(FVector(0.8f));
-	ball->SetSimulatePhysics(true);
+	ball->SetSimulatePhysics(false);
 	ball->SetCollisionProfileName(TEXT("BallPreset"));
 	
 	mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));
 	mesh->SetupAttachment(ball);
 	mesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	mesh->SetVisibility(false);
 
 	ConstructorHelpers::FObjectFinder<UStaticMesh> tempMesh(TEXT("/Script/Engine.StaticMesh'/Game/FPWeapon/Mesh/FirstPersonProjectileMesh.FirstPersonProjectileMesh'"));
 	if (tempMesh.Succeeded())
@@ -50,13 +52,31 @@ void ABall::BeginPlay()
 	Super::BeginPlay();
 	
 	player = Cast<AVRPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), AVRPlayer::StaticClass()));
-	enemy = Cast<AEnemy>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass()));
-	
-	int32 rand = FMath::RandRange(-1600, 1600);
-	ball->SetWorldLocation(FVector(0, 0, 800));
-	ball->SetWorldRotation(FRotator(0));
+	//enemy = Cast<AEnemy>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass()));
+
+	//enemyArray.Add(enemy);
+
+// 	int32 rand = FMath::RandRange(-1600, 1600);
+// 	ball->SetWorldLocation(FVector(0, rand, 800));
+// 	ball->SetWorldRotation(FRotator(0));
+	GetWorldTimerManager().SetTimer(startHandle, this, &ABall::StartBall, 3.5f, false);
 
 	ball->OnComponentBeginOverlap.AddDynamic(this, &ABall::OnOverlapBegin);
+
+	for (TActorIterator<AEnemy> it(GetWorld()); it; ++it)
+	{
+		enemyArray.Add(*it);
+	}
+
+// 	for (TActorIterator<AActor> It(GetWorld()); It; ++It)
+// 	{
+// 		AActor* Actor = *It;
+// 		if (AEnemy* enemy = Cast<AEnemy>(Actor))
+// 		{
+// 			enemyArray.Add(enemy);
+// 		}
+// 	}
+	GetWorld()->SpawnActor<ACenterBallWidgetActor>(widgetActor, FVector(0, 0, 500), FRotator(0, 180, 0));
 }
 
 // Called every frame
@@ -78,8 +98,14 @@ void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 {
 	if (OtherComp->GetName().Contains(TEXT("goalPost")))
 	{
-		enemy->fsm->ChangeState(EEnemyState::Idle);
+		for (AEnemy* enemy : enemyArray)
+		{
+			enemy->fsm->ChangeState(EEnemyState::Idle);
+		}
+
 		mesh->SetVisibility(false);
+		ball->SetCollisionProfileName(TEXT("BallNoColl"));
+		SetActorLocation(FVector(0,0,800));
 		GetWorldTimerManager().SetTimer(goalHandle, this, &ABall::CenterBall, 3, false);
 		GetWorld()->GetFirstPlayerController()->PlayHapticEffect(goalHaptic, EControllerHand::Right, 1, false);
 		GetWorld()->GetFirstPlayerController()->PlayHapticEffect(goalHaptic, EControllerHand::Left, 1, false);
@@ -88,20 +114,37 @@ void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 
 void ABall::CenterBall()
 {
-	GetWorld()->SpawnActor<ACenterBallWidgetActor>(widgetActor, FVector(0, 0, 500), FRotator(0, 180, 0));
-	enemy->ResetPos();
-	player->ResetPos();
-	enemy->fsm->ChangeState(EEnemyState::Idle);
+		GetWorld()->SpawnActor<ACenterBallWidgetActor>(widgetActor, FVector(0, 0, 500), FRotator(0, 180, 0));
 
-	FTimerHandle WaitHandle;
-	float WaitTime = 3.2; //시간을 설정하고
-	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
+		for (AEnemy* enemy : enemyArray)
 		{
-			int32 rand = FMath::RandRange(-1600, 1600);
-			ball->SetWorldLocation(FVector(0, 0, 800));
-			ball->SetWorldRotation(FRotator(0));
-			mesh->SetVisibility(true);
+			enemy->ResetPos();
 			enemy->fsm->ChangeState(EEnemyState::Idle);
-		}), WaitTime, false);
+		}
+
+		player->ResetPos();
+		ball->SetSimulatePhysics(false);
+		SetActorLocation(FVector(0, 0, 800));
+		SetActorRotation(FRotator(0));
+
+		FTimerHandle WaitHandle;
+		float WaitTime = 3.2; //시간을 설정하고
+		GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
+			{
+
+				StartBall();
+
+			}), WaitTime, false);
+}
+
+void ABall::StartBall()
+{
+	SetActorLocation(FVector(0, 0, 200));
+	//ball->SetWorldRotation(FRotator(0));
+	SetActorRotation(FRotator(0));
+	ball->SetSimulatePhysics(true);
+	mesh->SetVisibility(true);
+	ball->AddImpulse(ball->GetMass() * GetActorUpVector() * 500);
+	ball->SetCollisionProfileName(TEXT("BallPreset"));
 }
 

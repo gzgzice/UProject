@@ -15,7 +15,8 @@ AMovePoint::AMovePoint()
 
 	compBox = CreateDefaultSubobject<UBoxComponent>(TEXT("BoxCollision"));
 	SetRootComponent(compBox);
-	compBox->SetRelativeScale3D(FVector(2.5f, 2.5f, 0.01f));
+	//compBox->SetRelativeScale3D(FVector(2.5f, 2.5f, 0.01f));
+	compBox->SetRelativeScale3D(FVector(3.5f, 3.5f, 0.01f));
 	compBox->SetCollisionProfileName(TEXT("BlockAll"));
 
 	caughtBox = CreateDefaultSubobject<UCapsuleComponent>(TEXT("CaughtCollision"));
@@ -23,7 +24,9 @@ AMovePoint::AMovePoint()
 	caughtBox->SetCollisionProfileName(TEXT("PointPreset"));
 	caughtBox->SetCapsuleHalfHeight(10000);
 	caughtBox->SetCapsuleRadius(20);
-	caughtBox->SetRelativeLocation(FVector(0, 0, 9000));
+	//caughtBox->SetRelativeLocation(FVector(0, 0, 9000));
+	caughtBox->SetRelativeScale3D(FVector(1.5f));
+	caughtBox->SetRelativeLocation(FVector(0, 0, 14000));
 
 
 	compMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));

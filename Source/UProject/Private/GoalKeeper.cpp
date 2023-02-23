@@ -20,6 +20,7 @@ AGoalKeeper::AGoalKeeper()
 
 	GetCapsuleComponent()->SetCollisionProfileName(TEXT("EnemyPreset"));
 	GetCapsuleComponent()->SetCapsuleRadius(80);
+	GetCapsuleComponent()->SetRelativeScale3D(FVector(1.5f));
 
 	GetMesh()->SetRelativeLocation(FVector(0, 0, -90));
 	GetMesh()->SetRelativeRotation(FRotator(0, -90, 0));
@@ -112,7 +113,7 @@ void AGoalKeeper::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Ot
 
 void AGoalKeeper::BlockHand(float speed)
 {
-	if (FMath::FRand() < 0.9f)
+	if (FMath::FRand() < 0.75f)
 	{
 		bBlock = true;
 		handMesh->SetVisibility(true);

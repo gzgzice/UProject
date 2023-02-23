@@ -131,7 +131,7 @@ void AEnemy::HandOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Other
 
 void AEnemy::ResetPos()
 {
-	SetActorLocation(originPos+FVector(0,0,300));
+	SetActorLocation(originPos);
 	UE_LOG(LogTemp, Warning, TEXT("%d , %d, %d"), originPos.X, originPos.Y, originPos.Z);
 }
 

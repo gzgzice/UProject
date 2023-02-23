@@ -16,10 +16,24 @@ void UStartWidget::NativeConstruct()
 
 void UStartWidget::OnPress()
 {
-	UGameplayStatics::OpenLevel(GetWorld(), TEXT("MainMap"));
+	FTimerHandle WaitHandle;
+	float WaitTime = 0.5; //시간을 설정하고
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
+		{
+
+			UGameplayStatics::OpenLevel(GetWorld(), TEXT("MainMap"));
+
+		}), WaitTime, false);
 }
 
 void UStartWidget::OnRelease()
 {
-	UKismetSystemLibrary::QuitGame(this, 0, EQuitPreference::Quit, false);
+	FTimerHandle WaitHandle;
+	float WaitTime = 0.5; //시간을 설정하고
+	GetWorld()->GetTimerManager().SetTimer(WaitHandle, FTimerDelegate::CreateLambda([&]()
+		{
+
+			UKismetSystemLibrary::QuitGame(this, 0, EQuitPreference::Quit, false);
+
+		}), WaitTime, false);
 }

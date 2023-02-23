@@ -38,7 +38,7 @@ public:
 		class AScoreWidgetActor* ScoreWidgetActor;
 
 	UPROPERTY(EditAnywhere)
-		class UParticleSystem* goalEffect;
+		TSubclassOf<class ABlueGoalParticleActor> goalEffect;
 
 	UPROPERTY(EditAnywhere)
 		class USoundBase* goalSound;

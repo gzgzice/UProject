@@ -8,7 +8,7 @@
 #include "ScoreWidget.h"		
 #include "ScoreWidgetActor.h"		
 #include <UMG/Public/Components/WidgetComponent.h>
-#include <Particles/ParticleSystem.h>
+#include "RedGoalParticleActor.h"
 
 // Sets default values
 ABlueGoalPost::ABlueGoalPost()
@@ -22,10 +22,10 @@ ABlueGoalPost::ABlueGoalPost()
 	goalPost->SetRelativeScale3D(FVector(8, 19.5f, 5));
 	goalPost->SetCollisionProfileName(TEXT("GoalPostPreset"));
 
-	ConstructorHelpers::FObjectFinder<UParticleSystem> tempGoal(TEXT("/Script/Engine.ParticleSystem'/Game/FXVarietyPack/Particles/P_ky_hit2.P_ky_hit2'"));
+	ConstructorHelpers::FClassFinder<ARedGoalParticleActor> tempGoal(TEXT("/Script/Engine.Blueprint'/Game/Blueprints/BP_RedGoalParticleActor.BP_RedGoalParticleActor_C'"));
 	if (tempGoal.Succeeded())
 	{
-		goalEffect = tempGoal.Object;
+		goalEffect = tempGoal.Class;
 	}
 
 	ConstructorHelpers::FObjectFinder<USoundBase> tempSound(TEXT("/Script/Engine.SoundWave'/Game/EnemySound/goalsound1.goalsound1'"));
@@ -61,7 +61,7 @@ void ABlueGoalPost::BallOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 		UE_LOG(LogTemp, Warning, TEXT("Red Goal!!"));
 		UGameplayStatics::PlaySound2D(GetWorld(), goalSound);
 		scoreWidget->UpdateRedScoreUI(1);
-		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), goalEffect, GetActorTransform());
+		GetWorld()->SpawnActor<ARedGoalParticleActor>(goalEffect, GetActorLocation(), GetActorRotation()+FRotator(-90,0,0));
 	}
 }
 

@@ -24,9 +24,9 @@ public:
 	class UButton* Btn_Exit;
 	
 private:
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnPress();
 	
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	void OnRelease();
 };

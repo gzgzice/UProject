@@ -20,6 +20,8 @@ ACenterBallWidgetActor::ACenterBallWidgetActor()
 		centerWG->SetWidgetClass(UserWidget.Class);
 		centerWG->SetDrawSize(FVector2D(2000.0f, 2000.0f));
 	}
+
+	InitialLifeSpan = 3.5f;
 }
 
 // Called when the game starts or when spawned

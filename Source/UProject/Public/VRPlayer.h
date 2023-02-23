@@ -72,7 +72,10 @@ public:
 		class ARedGoalPost* RedGoalPost;
 
 	UPROPERTY(EditAnywhere)
-		class UParticleSystem* hitEffect;	
+		class UParticleSystem* hitEffect;		
+		
+	UPROPERTY(EditAnywhere)
+		TSubclassOf<class APlayerEffectActor> fireEffect;
 
 public:
 	UPROPERTY(EditAnywhere)

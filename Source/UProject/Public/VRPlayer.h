@@ -77,6 +77,21 @@ public:
 	UPROPERTY(EditAnywhere)
 		TSubclassOf<class APlayerEffectActor> fireEffect;
 
+	UPROPERTY(EditAnywhere)
+		class USoundBase* fireSound;	
+
+	UPROPERTY(EditAnywhere)
+		class USoundBase* moveSound;	
+		
+	UPROPERTY(EditAnywhere)
+		class USoundBase* hitSound;		
+		
+	UPROPERTY(EditAnywhere)
+		class USoundBase* powerhitSound;
+	
+	UPROPERTY(EditAnywhere)
+		class USoundBase* explosionSound;
+
 public:
 	UPROPERTY(EditAnywhere)
 	FVector orginPos;
@@ -113,6 +128,7 @@ public:
 	bool bisGrabLine = false;
 	bool bisSweep = false;
 	bool bIsGrabPressed = false;
+	bool bIsSound = false;
 	FVector leftcurrentPos;
 	FVector rightcurrentPos;
 	FVector leftstartPos;

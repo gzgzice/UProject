@@ -31,4 +31,7 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UStaticMeshComponent* meshComp;
 
+	UPROPERTY(EditAnywhere)
+	class USoundBase* itemSound;
+
 };

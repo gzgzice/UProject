@@ -52,13 +52,7 @@ void ABall::BeginPlay()
 	Super::BeginPlay();
 	
 	player = Cast<AVRPlayer>(UGameplayStatics::GetActorOfClass(GetWorld(), AVRPlayer::StaticClass()));
-	//enemy = Cast<AEnemy>(UGameplayStatics::GetActorOfClass(GetWorld(), AEnemy::StaticClass()));
 
-	//enemyArray.Add(enemy);
-
-// 	int32 rand = FMath::RandRange(-1600, 1600);
-// 	ball->SetWorldLocation(FVector(0, rand, 800));
-// 	ball->SetWorldRotation(FRotator(0));
 	GetWorldTimerManager().SetTimer(startHandle, this, &ABall::StartBall, 3.5f, false);
 
 	ball->OnComponentBeginOverlap.AddDynamic(this, &ABall::OnOverlapBegin);
@@ -106,6 +100,7 @@ void ABall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 		mesh->SetVisibility(false);
 		ball->SetCollisionProfileName(TEXT("BallNoColl"));
 		SetActorLocation(FVector(0,0,800));
+		SetActorRotation(FRotator(0));
 		GetWorldTimerManager().SetTimer(goalHandle, this, &ABall::CenterBall, 3, false);
 		GetWorld()->GetFirstPlayerController()->PlayHapticEffect(goalHaptic, EControllerHand::Right, 1, false);
 		GetWorld()->GetFirstPlayerController()->PlayHapticEffect(goalHaptic, EControllerHand::Left, 1, false);
@@ -140,7 +135,6 @@ void ABall::CenterBall()
 void ABall::StartBall()
 {
 	SetActorLocation(FVector(0, 0, 200));
-	//ball->SetWorldRotation(FRotator(0));
 	SetActorRotation(FRotator(0));
 	ball->SetSimulatePhysics(true);
 	mesh->SetVisibility(true);

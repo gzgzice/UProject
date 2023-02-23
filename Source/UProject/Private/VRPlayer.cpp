@@ -43,7 +43,7 @@ AVRPlayer::AVRPlayer()
 	headMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	rightMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("rightController"));
-	rightMotionController->SetupAttachment(RootComponent);
+	rightMotionController->SetupAttachment(Cam);
 	rightMotionController->MotionSource = "Right";
 	rightMotionController->SetRelativeLocation(FVector(23, 16,-25));
 
@@ -52,7 +52,7 @@ AVRPlayer::AVRPlayer()
 	rightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	leftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("leftController"));
-	leftMotionController->SetupAttachment(RootComponent);
+	leftMotionController->SetupAttachment(Cam);
 	leftMotionController->MotionSource = "Left";
 	leftMotionController->SetRelativeLocation(FVector(23, -17, -25));
 
@@ -156,13 +156,13 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Started, this, &AVRPlayer::OnleftActionX);
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionX);
 		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RotateLeft);
-		//enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateLeft);
+		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateLeft);
 		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::FireLeftHand);
 		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ReturnLeftHand);
 		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &AVRPlayer::OnRightActionA);
 		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionA);
 		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RotateRight);
-		//enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateRight);
+		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateRight);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::FireRightHand);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ReturnRightHand);
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &AVRPlayer::PressedGrabFire);
@@ -258,19 +258,19 @@ void AVRPlayer::DrawLocationLine(UMotionControllerComponent* motionController)
 void AVRPlayer::RotateRight()
 {
 	AddControllerYawInput(90);
-	rightstartPos = rightMotionController->GetComponentLocation();
-	leftstartPos = leftMotionController->GetComponentLocation();
-	rightHand->SetWorldLocation(rightstartPos);
-	leftHand->SetWorldLocation(leftstartPos);
+// 	rightHand->SetWorldLocation(rightMotionController->GetComponentLocation());
+// 	leftHand->SetWorldLocation(leftMotionController->GetComponentLocation());
+// 	rightstartPos = rightMotionController->GetComponentLocation();
+// 	leftstartPos = leftMotionController->GetComponentLocation();
 }
 
 void AVRPlayer::RotateLeft()
 {
 	AddControllerYawInput(-90);
- 	rightstartPos = rightMotionController->GetComponentLocation();
- 	leftstartPos = leftMotionController->GetComponentLocation();
-	rightHand->SetWorldLocation(rightstartPos);
-	leftHand->SetWorldLocation(leftstartPos);
+// 	rightHand->SetWorldLocation(rightMotionController->GetComponentLocation());
+// 	leftHand->SetWorldLocation(leftMotionController->GetComponentLocation());
+// 	rightstartPos = rightMotionController->GetComponentLocation();
+// 	leftstartPos = leftMotionController->GetComponentLocation();
 }
 
 void AVRPlayer::FireLeftHand(const FInputActionValue& value)

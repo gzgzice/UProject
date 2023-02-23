@@ -19,7 +19,7 @@ APlayerEffectActor::APlayerEffectActor()
 	// 		compParticle->SetTemplate(tempParticle.Object);
 	// 	}
 
-	InitialLifeSpan = 2;
+	InitialLifeSpan = 5;
 }
 
 // Called when the game starts or when spawned

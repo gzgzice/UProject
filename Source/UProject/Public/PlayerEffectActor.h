@@ -24,5 +24,5 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UPROPERTY(EditAnywhere)
-	class UParticleSystem* playerEffect;
+	class UParticleSystemComponent* playerEffect;
 };

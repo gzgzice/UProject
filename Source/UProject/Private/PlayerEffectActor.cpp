@@ -2,6 +2,8 @@
 
 
 #include "PlayerEffectActor.h"
+#include <Particles/ParticleSystemComponent.h>
+#include <Particles/ParticleSystem.h>
 
 // Sets default values
 APlayerEffectActor::APlayerEffectActor()

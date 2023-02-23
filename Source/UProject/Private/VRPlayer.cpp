@@ -20,6 +20,7 @@
 #include "DirectionWidget.h"
 #include "RedGoalPost.h"
 #include <Particles/ParticleSystem.h>
+#include "PlayerEffectActor.h"
 
 
 
@@ -352,6 +353,7 @@ void AVRPlayer::RightHandMove(float deltatime)
 	 * axis * speed * deltatime;
 
 	rightHand->SetWorldLocation(prediction);
+	GetWorld()->SpawnActor<APlayerEffectActor>(fireEffect, rightHand->GetComponentLocation() + rightHand->GetForwardVector() * -10, GetActorRotation());
 
  	FVector start = rightHand->GetComponentLocation();
  	FVector end = rightHand->GetComponentLocation();

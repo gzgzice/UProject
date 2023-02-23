@@ -58,7 +58,7 @@ void ABlueGoalPost::BallOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 {
 	if (OtherComp->GetName().Contains(TEXT("Ball")))
 	{
-		UE_LOG(LogTemp, Warning, TEXT("Red Goal!!"));
+		//UE_LOG(LogTemp, Warning, TEXT("Red Goal!!"));
 		UGameplayStatics::PlaySound2D(GetWorld(), goalSound);
 
 		GetWorld()->SpawnActor<ARedGoalParticleActor>(goalEffect, GetActorLocation(), GetActorRotation()+FRotator(-90,0,0));

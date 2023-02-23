@@ -478,6 +478,8 @@ void AVRPlayer::PressedGrabFire()
 	{
 		bisSweep = false;
 	}
+
+	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
 
 void AVRPlayer::DrawSweep()

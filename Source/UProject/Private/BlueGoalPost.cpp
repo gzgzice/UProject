@@ -64,7 +64,7 @@ void ABlueGoalPost::BallOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor
 		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), goalEffect, GetActorTransform());
 		for (int32 i = 0; i < WidgetActorArray.Num(); i++)
 		{
-			WidgetActorArray[i]->scoreWG->
+			WidgetActorArray[i]->ReceiveRedScore(1);
 		}
 	}
 }

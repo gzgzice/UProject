@@ -27,8 +27,8 @@ public:
 	class UWidgetComponent* scoreWG;
 
 	UPROPERTY(EditAnywhere)
-	TSubclassOf<class UWidgetComponent> widgetComp;
-
-	UPROPERTY(EditAnywhere)
 	class UScoreWidget* scoreUI;
+
+	void ReceiveBlueScore(int32 score);
+	void ReceiveRedScore(int32 score);
 };

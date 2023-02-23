@@ -27,7 +27,7 @@ void AScoreWidgetActor::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//scoreUI = CreateWidget<UScoreWidget>(GetWorld(), widgetComp);
+	scoreUI = Cast<UScoreWidget>(scoreWG->GetUserWidgetObject());
 	
 }
 
@@ -36,5 +36,15 @@ void AScoreWidgetActor::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+}
+
+void AScoreWidgetActor::ReceiveBlueScore(int32 score)
+{
+	scoreUI->UpdateBlueScoreUI(score);
+}
+
+void AScoreWidgetActor::ReceiveRedScore(int32 score)
+{
+	scoreUI->UpdateRedScoreUI(score);
 }
 

@@ -90,7 +90,13 @@ public:
 		class USoundBase* powerhitSound;
 	
 	UPROPERTY(EditAnywhere)
-		class USoundBase* explosionSound;
+		class USoundBase* explosionSound;	
+		
+	UPROPERTY(EditAnywhere)
+		class UParticleSystemComponent* Effect_L;	
+		
+	UPROPERTY(EditAnywhere)
+		class UParticleSystemComponent* Effect_R;
 
 public:
 	UPROPERTY(EditAnywhere)
@@ -128,7 +134,6 @@ public:
 	bool bisGrabLine = false;
 	bool bisSweep = false;
 	bool bIsGrabPressed = false;
-	bool bIsSound = false;
 	FVector leftcurrentPos;
 	FVector rightcurrentPos;
 	FVector leftstartPos;
@@ -147,4 +152,6 @@ public:
 	float Axis = 0;
 	float currtime;
 	float delta;
+	int32 state_L = 0;
+	int32 state_R = 0;
 };

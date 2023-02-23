@@ -21,6 +21,7 @@
 #include "RedGoalPost.h"
 #include <Particles/ParticleSystem.h>
 #include "PlayerEffectActor.h"
+#include <Particles/ParticleSystemComponent.h>
 
 
 
@@ -59,6 +60,18 @@ AVRPlayer::AVRPlayer()
 	leftHand = CreateDefaultSubobject<UStaticMeshComponent>("leftHand");
 	leftHand->SetupAttachment(leftMotionController);
 	leftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
+	Effect_L = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect_L"));
+	Effect_L->SetupAttachment(leftHand);
+	Effect_L->SetRelativeLocation(FVector(-150,0,0));
+	Effect_L->SetRelativeRotation(FRotator(90,0,0));
+	Effect_L->SetVisibility(false);
+
+	Effect_R = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect_R"));
+	Effect_R->SetupAttachment(rightHand);
+	Effect_R->SetRelativeLocation(FVector(-150, 0, 0));
+	Effect_R->SetRelativeRotation(FRotator(90, 0, 0));
+	Effect_R->SetVisibility(false);
 
 	bUseControllerRotationYaw = true;
 
@@ -280,7 +293,6 @@ void AVRPlayer::FireLeftHand(const FInputActionValue& value)
 {
 	axis = value.Get<float>();
 	bIsLeftFire = true;
-	bIsSound = true;
 }
 
 void AVRPlayer::FireRightHand(const struct FInputActionValue& value)
@@ -292,23 +304,25 @@ void AVRPlayer::FireRightHand(const struct FInputActionValue& value)
 
 void AVRPlayer::LeftHandMove(float deltatime)
 {
-	//FVector down = leftHand->GetUpVector() * -1;
-
 	FVector prediction = leftHand->GetComponentLocation() + leftHand->GetForwardVector()
-	 * axis * speed * delta;
+	 * axis * speed * deltatime;
 	//UE_LOG(LogTemp,Warning,TEXT("TimeSegment : %d & FireHand FVector : %s"), timeSegment,*prediction.ToString())
 
 	leftHand->SetWorldLocation(prediction);
-	if (bIsSound)
+
+	if (state_L == 0)
 	{
 		UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+		state_L++;
 	}
-	bIsSound = false;
+
+	Effect_L->SetVisibility(true);
+
   	FVector start = leftHand->GetComponentLocation();
   	FVector end = leftHand->GetComponentLocation();
   
-  	DrawDebugSphere(GetWorld(), end,
-  		20, 30, FColor::Cyan, false, -1, 0, 1);
+//   	DrawDebugSphere(GetWorld(), end,
+//   		20, 30, FColor::Cyan, false, -1, 0, 1);
   
   	FHitResult hitInfo;
   	FCollisionQueryParams param;
@@ -361,14 +375,20 @@ void AVRPlayer::RightHandMove(float deltatime)
 	 * axis * speed * deltatime;
 
 	rightHand->SetWorldLocation(prediction);
-	UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
-	GetWorld()->SpawnActor<APlayerEffectActor>(fireEffect, rightHand->GetComponentLocation() + rightHand->GetForwardVector() * -10, GetActorRotation());
+
+	if (state_R == 0)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+		state_R++;
+	}
+
+	Effect_R->SetVisibility(true);
 
  	FVector start = rightHand->GetComponentLocation();
  	FVector end = rightHand->GetComponentLocation();
  
- 	DrawDebugSphere(GetWorld(), end,
- 		20, 30, FColor::Cyan, false, -1, 0, 1);
+//  	DrawDebugSphere(GetWorld(), end,
+//  		20, 30, FColor::Cyan, false, -1, 0, 1);
  
  	FHitResult hitInfo;
  	FCollisionQueryParams param;
@@ -416,11 +436,15 @@ void AVRPlayer::RightHandMove(float deltatime)
 void AVRPlayer::ReturnLeftHand()
 {
 	bIsLeftFire = false;
+	Effect_L->SetVisibility(false);
+	state_L = 0;
 }
 
 void AVRPlayer::ReturnRightHand()
 {
 	bIsRightFire = false;
+	Effect_R->SetVisibility(false);
+	state_R = 0;
 }
 
 void AVRPlayer::ReturnMove(float deltatime, FVector startPos, FVector currPos, UStaticMeshComponent* handmesh)
@@ -472,7 +496,7 @@ void AVRPlayer::DrawLine()
 {
 	FVector start = rightHand->GetComponentLocation();
 	FVector end = start + rightHand->GetForwardVector() * 1500;
-	DrawDebugLine(GetWorld(), start, end, FColor::White, false, -1, 0, 1);
+	//DrawDebugLine(GetWorld(), start, end, FColor::White, false, -1, 0, 1);
 }
 
 void AVRPlayer::PressedGrabFire()
@@ -499,8 +523,8 @@ void AVRPlayer::DrawSweep()
 	FVector start = rightHand->GetComponentLocation();
 	FVector end = rightHand->GetComponentLocation();
 
-	DrawDebugSphere(GetWorld(), end,
-		20, 30, FColor::Cyan, false, -1, 0, 1);
+// 	DrawDebugSphere(GetWorld(), end,
+// 		20, 30, FColor::Cyan, false, -1, 0, 1);
 
 	FHitResult hitInfo;
 	FCollisionQueryParams param;

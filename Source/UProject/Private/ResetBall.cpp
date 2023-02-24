@@ -39,11 +39,14 @@ void AResetBall::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* Oth
 {
 	if (OtherComp->GetName().Contains(TEXT("Ball")))
 	{
-		//UE_LOG(LogTemp, Warning, TEXT("RESET!!!!!"));
-		ball->mesh->SetVisibility(false);
-		ball->ball->SetCollisionProfileName(TEXT("BallNoColl"));
+// 		UE_LOG(LogTemp, Warning, TEXT("RESET!!!!!"));
+// 		ball->mesh->SetVisibility(false);
+// 		ball->ball->SetCollisionProfileName(TEXT("BallNoColl"));
 
-		ball->CenterBall();
+		int32 rand1 = FMath::RandRange(-1000,1000);
+		int32 rand2 = FMath::RandRange(200,800);
+		ball->SetActorLocation(FVector(rand1, rand1, rand2));
+		ball->SetActorRotation(FRotator(0));
 	}
 }
 

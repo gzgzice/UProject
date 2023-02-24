@@ -22,6 +22,8 @@
 #include <Particles/ParticleSystem.h>
 #include "PlayerEffectActor.h"
 #include <Particles/ParticleSystemComponent.h>
+#include <Components/CapsuleComponent.h>
+#include <UMG/Public/Components/WidgetInteractionComponent.h>
 
 
 
@@ -30,6 +32,9 @@ AVRPlayer::AVRPlayer()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+
+	GetCapsuleComponent()->SetRelativeScale3D(FVector(1.5, 1.5, 1.0));
+	GetCapsuleComponent()->SetCapsuleRadius(80);
 
 	Cam = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Cam->SetupAttachment(RootComponent);
@@ -51,17 +56,17 @@ AVRPlayer::AVRPlayer()
 	rightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("rightHand"));
 	rightHand->SetupAttachment(rightMotionController);
 	rightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	rightHand->SetRelativeScale3D(FVector(0.3));
+	rightHand->SetRelativeScale3D(FVector(0.2));
 
 	leftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("leftController"));
 	leftMotionController->SetupAttachment(RootComponent);
 	leftMotionController->MotionSource = "Left";
-	leftMotionController->SetRelativeLocation(FVector(23, -17, -25));
+	leftMotionController->SetRelativeLocation(FVector(23, -23, -25));
 
 	leftHand = CreateDefaultSubobject<UStaticMeshComponent>("leftHand");
 	leftHand->SetupAttachment(leftMotionController);
 	leftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	leftHand->SetRelativeScale3D(FVector(0.3));
+	leftHand->SetRelativeScale3D(FVector(0.2));
 
 	Effect_L = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect_L"));
 	Effect_L->SetupAttachment(leftHand);
@@ -74,6 +79,12 @@ AVRPlayer::AVRPlayer()
 	Effect_R->SetRelativeLocation(FVector(-150, 0, 0));
 	Effect_R->SetRelativeRotation(FRotator(90, 0, 0));
 	Effect_R->SetVisibility(false);
+
+	widgetPointer_right = CreateDefaultSubobject<UWidgetInteractionComponent>(TEXT("Right Widget Pointer"));
+	widgetPointer_right->SetupAttachment(rightMotionController);
+	widgetPointer_right->InteractionDistance = 1000.0f;
+	widgetPointer_right->bShowDebug = false;
+	widgetPointer_right->DebugColor = FColor::Yellow;
 
 	bUseControllerRotationYaw = true;
 
@@ -128,11 +139,6 @@ void AVRPlayer::Tick(float DeltaTime)
 		DrawLocationLine(leftMotionController);
 	}
 
-	if (bisGrabLine)
-	{
-		DrawLine();
-	}
-
 	if (bisSweep)
 	{
 		DrawSweep();
@@ -171,7 +177,7 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Started, this, &AVRPlayer::OnleftActionX);
 		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionX);
 		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RotateLeft);
-		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateLeft);
+		//enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateLeft);
 		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::FireLeftHand);
 		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ReturnLeftHand);
 		enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Started, this, &AVRPlayer::ReCenter);
@@ -179,7 +185,7 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &AVRPlayer::OnRightActionA);
 		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionA);
 		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RotateRight);
-		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateRight);
+		//enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateRight);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::FireRightHand);
 		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ReturnRightHand);
 		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &AVRPlayer::PressedGrabFire);
@@ -212,8 +218,8 @@ void AVRPlayer::OnleftActionX()
 				SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 91);
 				rightstartPos = rightMotionController->GetComponentLocation();
 				leftstartPos = leftMotionController->GetComponentLocation();
-				rightHand->SetWorldLocation(rightstartPos);
-				leftHand->SetWorldLocation(leftstartPos);
+//  				rightHand->SetWorldLocation(rightstartPos);
+//  				leftHand->SetWorldLocation(leftstartPos);
 			}
 	}
 	else return;
@@ -252,8 +258,8 @@ void AVRPlayer::OnRightActionA()
 				SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 91);
 				rightstartPos = rightMotionController->GetComponentLocation();
 				leftstartPos = leftMotionController->GetComponentLocation();
-				rightHand->SetWorldLocation(rightstartPos);
-				leftHand->SetWorldLocation(leftstartPos);
+//  				rightHand->SetWorldLocation(rightstartPos);
+//  				leftHand->SetWorldLocation(leftstartPos);
 			}
 	}
 	else return;
@@ -277,20 +283,25 @@ void AVRPlayer::DrawLocationLine(UMotionControllerComponent* motionController)
 
 void AVRPlayer::RotateRight()
 {
-	AddControllerYawInput(90);
- 	rightHand->SetWorldLocation(rightMotionController->GetComponentLocation());
- 	leftHand->SetWorldLocation(leftMotionController->GetComponentLocation());
- 	rightstartPos = rightMotionController->GetComponentLocation();
- 	leftstartPos = leftMotionController->GetComponentLocation();
+	FRotator curRot = GetActorRotation();
+	FRotator newRot = FRotator(0, curRot.Yaw + 90, 0);
+
+	//SetActorRotation(newRot);
+ 	AddControllerYawInput(90);
+	//UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition(90);
+	rightstartPos = rightMotionController->GetComponentLocation();
+	leftstartPos = leftMotionController->GetComponentLocation();
 }
 
 void AVRPlayer::RotateLeft()
 {
-	AddControllerYawInput(-90);
- 	rightHand->SetWorldLocation(rightMotionController->GetComponentLocation());
- 	leftHand->SetWorldLocation(leftMotionController->GetComponentLocation());
- 	rightstartPos = rightMotionController->GetComponentLocation();
- 	leftstartPos = leftMotionController->GetComponentLocation();
+	FRotator curRot = GetActorRotation();
+	FRotator newRot = FRotator(0, curRot.Yaw + -90, 0);
+
+	//SetActorRotation(FRotator(0,-90,0));
+ 	AddControllerYawInput(-90);
+   	rightstartPos = rightMotionController->GetComponentLocation();
+   	leftstartPos = leftMotionController->GetComponentLocation();
 }
 
 void AVRPlayer::FireLeftHand(const FInputActionValue& value)
@@ -492,27 +503,19 @@ void AVRPlayer::FindAngle()
 
 void AVRPlayer::DetectBall(bool bValue)
 {
-	bisGrabLine = true;
 	bIsGrabPressed = bValue;
-}
-
-void AVRPlayer::DrawLine()
-{
-	FVector start = rightHand->GetComponentLocation();
-	FVector end = start + rightHand->GetForwardVector() * 1500;
-	DrawDebugLine(GetWorld(), start, end, FColor::Yellow, false, -1, 0, 1);
 }
 
 void AVRPlayer::PressedGrabFire()
 {
 	if (bIsGrabPressed)
-	{
-		bisGrabLine = false;
+	{;
 		bisSweep = true;
 		FVector p = rightHand->GetComponentLocation() + rightHand->GetForwardVector() * 5000 * delta;
 		//FVector p = ball->GetActorLocation();
 		UGameplayStatics::PlaySound2D(GetWorld(), powerhitSound);
 		rightHand->SetWorldLocation(p);
+		widgetPointer_right->bShowDebug = false;
 	}
 	else
 	{
@@ -557,7 +560,7 @@ void AVRPlayer::DrawSweep()
 		if (compHit->IsSimulatingPhysics() == true)
 		{
 			FVector dist = hitInfo.ImpactPoint - GetActorLocation();
-			FVector Loc = RedGoalPost->GetActorLocation();
+			FVector Loc = RedGoalPost->GetActorLocation() + FVector(0,700,0);
 			FVector force = compHit->GetMass() * Loc * 300;
 			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
 			bIsRightFire = false;

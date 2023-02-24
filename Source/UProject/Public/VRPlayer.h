@@ -98,6 +98,9 @@ public:
 	UPROPERTY(EditAnywhere)
 		class UParticleSystemComponent* Effect_R;
 
+	UPROPERTY(EditAnywhere)
+		class UWidgetInteractionComponent* widgetPointer_right;
+
 public:
 	UPROPERTY(EditAnywhere)
 	FVector orginPos;
@@ -132,7 +135,6 @@ public:
 	bool bIsLeftFire = false;
 	bool bIsRightFire = false;
 	bool bIsReturn = false;
-	bool bisGrabLine = false;
 	bool bisSweep = false;
 	bool bIsGrabPressed = false;
 	FVector leftcurrentPos;

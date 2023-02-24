@@ -6,6 +6,7 @@
 #include <Components/StaticMeshComponent.h>
 #include "VRPlayer.h"
 #include <Kismet/GameplayStatics.h>
+#include <UMG/Public/Components/WidgetInteractionComponent.h>
 
 // Sets default values
 AItem::AItem()
@@ -42,6 +43,7 @@ void AItem::NotifyActorBeginOverlap(AActor* OtherActor)
 	if (player)
 	{
 		player->DetectBall(true);
+		player->widgetPointer_right->bShowDebug = true;
 		UGameplayStatics::PlaySound2D(GetWorld(), itemSound);
 		Destroy();
 	}

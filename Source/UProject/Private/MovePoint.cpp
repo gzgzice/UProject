@@ -25,8 +25,8 @@ AMovePoint::AMovePoint()
 	caughtBox->SetCapsuleHalfHeight(10000);
 	caughtBox->SetCapsuleRadius(20);
 	//caughtBox->SetRelativeLocation(FVector(0, 0, 9000));
-	caughtBox->SetRelativeScale3D(FVector(1.5f));
-	caughtBox->SetRelativeLocation(FVector(0, 0, 14000));
+	caughtBox->SetRelativeScale3D(FVector(1.5f, 1.5f, 10));
+	caughtBox->SetRelativeLocation(FVector(0, 0, 97500));
 
 
 	compMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Mesh"));

@@ -51,6 +51,7 @@ AVRPlayer::AVRPlayer()
 	rightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("rightHand"));
 	rightHand->SetupAttachment(rightMotionController);
 	rightHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	rightHand->SetRelativeScale3D(FVector(0.3));
 
 	leftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("leftController"));
 	leftMotionController->SetupAttachment(RootComponent);
@@ -60,6 +61,7 @@ AVRPlayer::AVRPlayer()
 	leftHand = CreateDefaultSubobject<UStaticMeshComponent>("leftHand");
 	leftHand->SetupAttachment(leftMotionController);
 	leftHand->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	leftHand->SetRelativeScale3D(FVector(0.3));
 
 	Effect_L = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect_L"));
 	Effect_L->SetupAttachment(leftHand);
@@ -172,6 +174,8 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateLeft);
 		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::FireLeftHand);
 		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ReturnLeftHand);
+		enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Started, this, &AVRPlayer::ReCenter);
+		enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Completed, this, &AVRPlayer::ReCenter);
 		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &AVRPlayer::OnRightActionA);
 		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionA);
 		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RotateRight);
@@ -496,7 +500,7 @@ void AVRPlayer::DrawLine()
 {
 	FVector start = rightHand->GetComponentLocation();
 	FVector end = start + rightHand->GetForwardVector() * 1500;
-	//DrawDebugLine(GetWorld(), start, end, FColor::White, false, -1, 0, 1);
+	DrawDebugLine(GetWorld(), start, end, FColor::Yellow, false, -1, 0, 1);
 }
 
 void AVRPlayer::PressedGrabFire()
@@ -515,7 +519,7 @@ void AVRPlayer::PressedGrabFire()
 		bisSweep = false;
 	}
 
-	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
+
 }
 
 void AVRPlayer::DrawSweep()
@@ -580,4 +584,9 @@ void AVRPlayer::ResetPos()
 	rightstartPos = rightMotionController->GetComponentLocation();
 	rightHand->SetWorldLocation(rightstartPos);
 	leftHand->SetWorldLocation(leftstartPos);
+}
+
+void AVRPlayer::ReCenter()
+{
+	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }

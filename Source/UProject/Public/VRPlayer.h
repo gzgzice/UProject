@@ -125,6 +125,7 @@ public:
 	void PressedGrabFire();
 	void DrawSweep();
 	void ReleasedGrabFire();
+	void ReCenter();
 
 	bool bIsLeftDraw = false;
 	bool bIsRightDraw = false;

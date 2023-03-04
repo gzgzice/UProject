@@ -129,15 +129,15 @@ void AVRPlayer::Tick(float DeltaTime)
 	leftcurrentPos = leftHand->GetComponentLocation();
 	rightcurrentPos = rightHand->GetComponentLocation();
 
-  	if (bIsRightDraw)
-  	{
-  		DrawLocationLine(rightMotionController);
-  	}
+  //	if (bIsRightDraw)
+  //	{
+  //		DrawLocationLine(rightMotionController);
+  //	}
  
- 	if (bIsLeftDraw)
- 	{
- 		DrawLocationLine(leftMotionController);
- 	}
+ 	//if (bIsLeftDraw)
+ 	//{
+ 	//	DrawLocationLine(leftMotionController);
+ 	//}
 
 	if (bisSweep)
 	{

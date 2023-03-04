@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "VRPlayer.h"
+#include "MainPlayer.h"
 #include <Camera/CameraComponent.h>
 #include <MotionControllerComponent.h>
 #include <Components/StaticMeshComponent.h>
@@ -11,7 +11,6 @@
 #include "EnhancedInputSubsystems.h"
 #include "EnhancedInputComponent.h"
 #include "InputAction.h"
-#include "InputMappingContext.h"
 #include "Ball.h"
 #include <Kismet/GameplayStatics.h>
 #include "UGameModeBase.h"
@@ -25,10 +24,8 @@
 #include <Components/CapsuleComponent.h>
 #include <UMG/Public/Components/WidgetInteractionComponent.h>
 
-
-
 // Sets default values
-AVRPlayer::AVRPlayer()
+AMainPlayer::AMainPlayer()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -51,7 +48,6 @@ AVRPlayer::AVRPlayer()
 	rightMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("rightController"));
 	rightMotionController->SetupAttachment(RootComponent);
 	rightMotionController->MotionSource = "Right";
-	rightMotionController->SetRelativeLocation(FVector(23, 16,-25));
 
 	rightHand = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("rightHand"));
 	rightHand->SetupAttachment(rightMotionController);
@@ -61,7 +57,6 @@ AVRPlayer::AVRPlayer()
 	leftMotionController = CreateDefaultSubobject<UMotionControllerComponent>(TEXT("leftController"));
 	leftMotionController->SetupAttachment(RootComponent);
 	leftMotionController->MotionSource = "Left";
-	leftMotionController->SetRelativeLocation(FVector(23, -23, -25));
 
 	leftHand = CreateDefaultSubobject<UStaticMeshComponent>("leftHand");
 	leftHand->SetupAttachment(leftMotionController);
@@ -70,8 +65,8 @@ AVRPlayer::AVRPlayer()
 
 	Effect_L = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect_L"));
 	Effect_L->SetupAttachment(leftHand);
-	Effect_L->SetRelativeLocation(FVector(-150,0,0));
-	Effect_L->SetRelativeRotation(FRotator(90,0,0));
+	Effect_L->SetRelativeLocation(FVector(-150, 0, 0));
+	Effect_L->SetRelativeRotation(FRotator(90, 0, 0));
 	Effect_L->SetVisibility(false);
 
 	Effect_R = CreateDefaultSubobject<UParticleSystemComponent>(TEXT("Effect_R"));
@@ -89,10 +84,11 @@ AVRPlayer::AVRPlayer()
 	bUseControllerRotationYaw = true;
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
+
 }
 
 // Called when the game starts or when spawned
-void AVRPlayer::BeginPlay()
+void AMainPlayer::BeginPlay()
 {
 	Super::BeginPlay();
 
@@ -114,13 +110,14 @@ void AVRPlayer::BeginPlay()
 		dirUI = Cast<UDirectionWidget>(widgetComp->GetWidget());
 	}
 
-	orginPos = GetActorLocation();
+	//orginPos = GetActorLocation();
 
 	RedGoalPost = Cast<ARedGoalPost>(UGameplayStatics::GetActorOfClass(GetWorld(), ARedGoalPost::StaticClass()));
+	
 }
 
 // Called every frame
-void AVRPlayer::Tick(float DeltaTime)
+void AMainPlayer::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
@@ -129,44 +126,45 @@ void AVRPlayer::Tick(float DeltaTime)
 	leftcurrentPos = leftHand->GetComponentLocation();
 	rightcurrentPos = rightHand->GetComponentLocation();
 
-  	if (bIsRightDraw)
-  	{
-  		DrawLocationLine(rightMotionController);
-  	}
- 
- 	if (bIsLeftDraw)
+	if (bIsRightDraw)
+	{
+		DrawLocationLine(rightMotionController);
+	}
+
+	if (bIsLeftDraw)
+	{
+		DrawLocationLine(leftMotionController);
+	}
+
+// 	if (bisSweep)
+// 	{
+// 		DrawSweep();
+// 	}
+// 
+ 	if (bIsLeftFire)
  	{
- 		DrawLocationLine(leftMotionController);
+ 		LeftHandMove(DeltaTime);
  	}
+ 	else
+ 	{
+ 		ReturnMove(DeltaTime, leftstartPos, leftcurrentPos, leftHand);
+ 	}
+// 
+// 	if (bIsRightFire)
+// 	{
+// 		RightHandMove(DeltaTime);
+// 	}
+// 	else
+// 	{
+// 		ReturnMove(DeltaTime, rightstartPos, rightcurrentPos, rightHand);
+// 	}
 
-	if (bisSweep)
-	{
-		DrawSweep();
-	}
+	//FindAngle();
 
-	if (bIsLeftFire)
-	{
-		LeftHandMove(DeltaTime);
-	}
-	else
-	{
-		ReturnMove(DeltaTime, leftstartPos, leftcurrentPos, leftHand);
-	}	
-	
-	if (bIsRightFire)
-	{
-		RightHandMove(DeltaTime);
-	}
-	else
-	{
-		ReturnMove(DeltaTime, rightstartPos, rightcurrentPos, rightHand);
-	}
-	
-	FindAngle();
 }
 
 // Called to bind functionality to input
-void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+void AMainPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
@@ -174,33 +172,34 @@ void AVRPlayer::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	if (enhancedInputComponent != nullptr)
 	{
-		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Started, this, &AVRPlayer::OnleftActionX);
-		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionX);
-		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RotateLeft);
-		enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateLeft);
-		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::FireLeftHand);
-		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ReturnLeftHand);
-		enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Started, this, &AVRPlayer::ReCenter);
-		enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Completed, this, &AVRPlayer::ReCenter);
-		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &AVRPlayer::OnRightActionA);
-		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AVRPlayer::ReleaseActionA);
-		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Started, this, &AVRPlayer::RotateRight);
-		enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Completed, this, &AVRPlayer::RotateRight);
-		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AVRPlayer::FireRightHand);
-		enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Completed, this, &AVRPlayer::ReturnRightHand);
-		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &AVRPlayer::PressedGrabFire);
-		enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Completed, this, &AVRPlayer::ReleasedGrabFire);
+		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Started, this, &AMainPlayer::OnleftActionX);
+		enhancedInputComponent->BindAction(leftInputs[0], ETriggerEvent::Completed, this, &AMainPlayer::ReleaseActionX);
+		//enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Started, this, &AMainPlayer::RotateLeft);
+		//enhancedInputComponent->BindAction(leftInputs[1], ETriggerEvent::Completed, this, &AMainPlayer::RotateLeft);
+		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Triggered, this, &AMainPlayer::FireLeftHand);
+		enhancedInputComponent->BindAction(leftInputs[2], ETriggerEvent::Completed, this, &AMainPlayer::ReturnLeftHand);
+		//enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Started, this, &AMainPlayer::ReCenter);
+		//enhancedInputComponent->BindAction(leftInputs[3], ETriggerEvent::Completed, this, &AMainPlayer::ReCenter);
+		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Started, this, &AMainPlayer::OnRightActionA);
+		enhancedInputComponent->BindAction(rightInputs[0], ETriggerEvent::Completed, this, &AMainPlayer::ReleaseActionA);
+		//enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Started, this, &AMainPlayer::RotateRight);
+		//enhancedInputComponent->BindAction(rightInputs[1], ETriggerEvent::Completed, this, &AMainPlayer::RotateRight);
+		//enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Triggered, this, &AMainPlayer::FireRightHand);
+		//enhancedInputComponent->BindAction(rightInputs[2], ETriggerEvent::Completed, this, &AMainPlayer::ReturnRightHand);
+		//enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Started, this, &AMainPlayer::PressedGrabFire);
+		//enhancedInputComponent->BindAction(rightInputs[3], ETriggerEvent::Completed, this, &AMainPlayer::ReleasedGrabFire);
 	}
+
 }
 
-void AVRPlayer::OnleftActionX()
+void AMainPlayer::OnleftActionX()
 {
 	UGameplayStatics::PlaySound2D(GetWorld(), moveSound);
 
 	bIsLeftDraw = true;
 
 	FVector startLoc = leftMotionController->GetComponentLocation() + leftMotionController->GetForwardVector() * 300;
-	FVector pos = leftMotionController->GetForwardVector() * 900 + leftMotionController->GetUpVector() * -500;
+	FVector pos = leftMotionController->GetForwardVector() * 930 + leftMotionController->GetUpVector() * -500;
 	FVector endLoc = startLoc + pos;
 	FHitResult hitInfo;
 	FCollisionQueryParams param;
@@ -218,19 +217,19 @@ void AVRPlayer::OnleftActionX()
 				SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 91);
 				rightstartPos = rightMotionController->GetComponentLocation();
 				leftstartPos = leftMotionController->GetComponentLocation();
-//  				rightHand->SetWorldLocation(rightstartPos);
-//  				leftHand->SetWorldLocation(leftstartPos);
+				//  				rightHand->SetWorldLocation(rightstartPos);
+				//  				leftHand->SetWorldLocation(leftstartPos);
 			}
 	}
 	else return;
 }
 
-void AVRPlayer::ReleaseActionX()
+void AMainPlayer::ReleaseActionX()
 {
 	bIsLeftDraw = false;
 }
 
-void AVRPlayer::OnRightActionA()
+void AMainPlayer::OnRightActionA()
 {
 	UGameplayStatics::PlaySound2D(GetWorld(), moveSound);
 	bIsRightDraw = true;
@@ -240,7 +239,7 @@ void AVRPlayer::OnRightActionA()
 	//	FCollisionShape::MakeSphere(fireDistance), param);
 
 	FVector startLoc = rightMotionController->GetComponentLocation() + rightMotionController->GetForwardVector() * 300;
-	FVector pos = rightMotionController->GetForwardVector() * 900 + rightMotionController->GetUpVector() * -500;
+	FVector pos = rightMotionController->GetForwardVector() * 930 + rightMotionController->GetUpVector() * -500;
 	FVector endLoc = startLoc + pos;
 	FHitResult hitInfo;
 	FCollisionQueryParams param;
@@ -258,73 +257,75 @@ void AVRPlayer::OnRightActionA()
 				SetActorLocation(actor->GetActorLocation() + GetActorUpVector() * 91);
 				rightstartPos = rightMotionController->GetComponentLocation();
 				leftstartPos = leftMotionController->GetComponentLocation();
-//  				rightHand->SetWorldLocation(rightstartPos);
-//  				leftHand->SetWorldLocation(leftstartPos);
+				//  				rightHand->SetWorldLocation(rightstartPos);
+				//  				leftHand->SetWorldLocation(leftstartPos);
 			}
 	}
 	else return;
 
 }
 
-void AVRPlayer::ReleaseActionA()
+void AMainPlayer::ReleaseActionA()
 {
 	bIsRightDraw = false;
 }
 
-void AVRPlayer::DrawLocationLine(UMotionControllerComponent* motionController)
+void AMainPlayer::DrawLocationLine(UMotionControllerComponent* motionController)
 {
 	FVector startLoc = motionController->GetComponentLocation() + motionController->GetForwardVector() * 300;
-	FVector pos = motionController->GetForwardVector() * 900 + motionController->GetUpVector() * -500;
+	FVector pos = motionController->GetForwardVector() * 930 + motionController->GetUpVector() * -500;
 	FVector endLoc = startLoc + pos;
 
 	DrawDebugSphere(GetWorld(), endLoc,
-	fireDistance, 30, FColor::Cyan, false, -1, 0, 1);
+		fireDistance, 30, FColor::Cyan, false, -1, 0, 1);
 }
 
-void AVRPlayer::RotateRight()
+void AMainPlayer::RotateRight()
 {
-// 	FRotator curRot = GetActorRotation();
-// 	FRotator newRot = FRotator(0, curRot.Yaw + -90, 0);
-// 	SetActorRotation(newRot);
+	FRotator curRot = GetActorRotation();
+	FRotator newRot = FRotator(0, curRot.Yaw + -90, 0);
 
+	//SetActorRotation(newRot);
+	AddControllerYawInput(-90);
 	//UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition(90);
-	rightHand->SetWorldLocation(rightcurrentPos);
-	leftHand->SetWorldLocation(leftcurrentPos);
-	rightstartPos = rightMotionController->GetComponentLocation();
-	leftstartPos = leftMotionController->GetComponentLocation();
+	//rightstartPos = rightMotionController->GetComponentLocation();
+	//leftstartPos = leftMotionController->GetComponentLocation();
+}
+
+void AMainPlayer::RotateLeft()
+{
+	FRotator curRot = GetActorRotation();
+	FRotator newRot = FRotator(0, curRot.Yaw + 90, 0);
+
+	//SetActorRotation(FRotator(0,-90,0));
 	AddControllerYawInput(90);
+	//rightstartPos = rightMotionController->GetComponentLocation();
+	//leftstartPos = leftMotionController->GetComponentLocation();
 }
 
-void AVRPlayer::RotateLeft()
+void AMainPlayer::FireLeftHand(const FInputActionValue& value)
 {
-// 	FRotator curRot = GetActorRotation();
-// 	FRotator newRot = FRotator(0, curRot.Yaw + 90, 0);
-// 	SetActorRotation(newRot);
-
-	rightHand->SetWorldLocation(rightcurrentPos);
-	leftHand->SetWorldLocation(leftcurrentPos);
-	rightstartPos = rightMotionController->GetComponentLocation();
-   	leftstartPos = leftMotionController->GetComponentLocation();
- 	AddControllerYawInput(-90);
-}
-
-void AVRPlayer::FireLeftHand(const FInputActionValue& value)
-{
+	Deltatime += GetWorld()->GetDeltaSeconds();
 	axis = value.Get<float>();
-	bIsLeftFire = true;
+	//bIsLeftFire = true;
+	FVector prediction = leftHand->GetComponentLocation() + leftHand->GetForwardVector()
+		* axis * speed * Deltatime;
+	//UE_LOG(LogTemp,Warning,TEXT("TimeSegment : %d & FireHand FVector : %s"), timeSegment,*prediction.ToString())
+
+	leftHand->SetWorldLocation(prediction);
 }
 
-void AVRPlayer::FireRightHand(const struct FInputActionValue& value)
+void AMainPlayer::FireRightHand(const struct FInputActionValue& value)
 {
 	axis = value.Get<float>();
 	UE_LOG(LogTemp, Warning, TEXT("rightHand"))
-	bIsRightFire = true;;
+		bIsRightFire = true;;
 }
 
-void AVRPlayer::LeftHandMove(float deltatime)
+void AMainPlayer::LeftHandMove(float deltatime)
 {
 	FVector prediction = leftHand->GetComponentLocation() + leftHand->GetForwardVector()
-	 * axis * speed * deltatime;
+		* axis * speed * deltatime;
 	//UE_LOG(LogTemp,Warning,TEXT("TimeSegment : %d & FireHand FVector : %s"), timeSegment,*prediction.ToString())
 
 	leftHand->SetWorldLocation(prediction);
@@ -337,205 +338,11 @@ void AVRPlayer::LeftHandMove(float deltatime)
 
 	Effect_L->SetVisibility(true);
 
-  	FVector start = leftHand->GetComponentLocation();
-  	FVector end = leftHand->GetComponentLocation();
-  
-//   	DrawDebugSphere(GetWorld(), end,
-//   		20, 30, FColor::Cyan, false, -1, 0, 1);
-  
-  	FHitResult hitInfo;
-  	FCollisionQueryParams param;
-  	param.AddIgnoredActor(this);
-  
-  	FHitResult hitDome;
-  	FCollisionQueryParams params;
-  	params.AddIgnoredActor(this);
-  
-  	bool bHitball = GetWorld()->SweepSingleByChannel(hitInfo, start, end, FQuat::Identity, ECC_Visibility,
-  		FCollisionShape::MakeSphere(20), param);
-  	bool bHitDome = GetWorld()->SweepSingleByObjectType(hitDome, start, end, FQuat::Identity,
-  		ECC_GameTraceChannel8, FCollisionShape::MakeSphere(20), params);
-  
-  	if (bHitball)
-  	{	
-  		AActor* actor = hitInfo.GetActor();
-		ABall* hitActor = Cast<ABall>(actor);
-		if (hitActor != nullptr)
-		{
-			ball = hitActor;
-		}
-  		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
-  
-  			UPrimitiveComponent* compHit = hitInfo.GetComponent();
-  		if (compHit->IsSimulatingPhysics() == true)
-  		{
-  			FVector dist = hitInfo.ImpactPoint - GetActorLocation();
-  			FVector hitDir = compHit->GetComponentLocation() - hitInfo.ImpactPoint;
-  			FVector Loc = dist + hitDir;
-  			FVector force = compHit->GetMass() * Loc * 150;
-  			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
-			bIsLeftFire = false;
-			UGameplayStatics::PlaySound2D(GetWorld(), hitSound);
-  		}
-  	}
-  	if (bHitDome)
-  	{
-  		AActor* actor = hitDome.GetActor();
-  		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
-  		bIsLeftFire = false;
-  	}
-}
+	FVector start = leftHand->GetComponentLocation();
+	FVector end = leftHand->GetComponentLocation();
 
-void AVRPlayer::RightHandMove(float deltatime)
-{
-	//FVector down = rightHand->GetUpVector() * -1;
-
-	FVector prediction = rightHand->GetComponentLocation() + rightHand->GetForwardVector() 
-	 * axis * speed * deltatime;
-
-	rightHand->SetWorldLocation(prediction);
-
-	if (state_R == 0)
-	{
-		UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
-		state_R++;
-	}
-
-	Effect_R->SetVisibility(true);
-
- 	FVector start = rightHand->GetComponentLocation();
- 	FVector end = rightHand->GetComponentLocation();
- 
-//  	DrawDebugSphere(GetWorld(), end,
-//  		20, 30, FColor::Cyan, false, -1, 0, 1);
- 
- 	FHitResult hitInfo;
- 	FCollisionQueryParams param;
- 	param.AddIgnoredActor(this);
- 
- 	FHitResult hitDome;
- 	FCollisionQueryParams params;
- 	params.AddIgnoredActor(this);
- 
- 	bool bHitball = GetWorld()->SweepSingleByChannel(hitInfo, start, end, FQuat::Identity, ECC_Visibility,
- 		FCollisionShape::MakeSphere(20), param);
- 	bool bHitDome = GetWorld()->SweepSingleByObjectType(hitDome, start, end, FQuat::Identity,
- 		ECC_GameTraceChannel8, FCollisionShape::MakeSphere(20), params);
- 
- 	if (bHitball)
- 	{
- 		AActor* actor = hitInfo.GetActor();
- 		ABall* hitActor = Cast<ABall>(actor);
-		if (hitActor != nullptr)
-		{
-			ball = hitActor;
-		}
- 		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
- 
- 			UPrimitiveComponent* compHit = hitInfo.GetComponent();
- 		if (compHit->IsSimulatingPhysics() == true)
- 		{
- 			FVector dist = hitInfo.ImpactPoint - GetActorLocation();
- 			FVector hitDir = compHit->GetComponentLocation() - hitInfo.ImpactPoint;
- 			FVector Loc = dist + hitDir;
- 			FVector force = compHit->GetMass() * Loc * 150;
- 			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
-			bIsRightFire = false;
-			UGameplayStatics::PlaySound2D(GetWorld(), hitSound);
- 		}
- 	}
- 	if (bHitDome)
- 	{
- 		AActor* actor = hitDome.GetActor();
- 		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
- 		bIsRightFire = false;
- 	}
-}
-
-void AVRPlayer::ReturnLeftHand()
-{
-	bIsLeftFire = false;
-	Effect_L->SetVisibility(false);
-	state_L = 0;
-}
-
-void AVRPlayer::ReturnRightHand()
-{
-	bIsRightFire = false;
-	Effect_R->SetVisibility(false);
-	state_R = 0;
-}
-
-void AVRPlayer::ReturnMove(float deltatime, FVector startPos, FVector currPos, UStaticMeshComponent* handmesh)
-{
-	FVector returnPos = FMath::Lerp(currPos, startPos, deltatime * 30);
-	handmesh->SetWorldLocation(returnPos);
-}
-
-void AVRPlayer::FindAngle()
-{	
- 	FVector player = FVector(GetActorLocation().X, GetActorLocation().Y, 0);
- 	FVector target = FVector(ball->GetActorLocation().X, ball->GetActorLocation().Y, 0);
- 	FVector dir = target - player;
- 	dir.Normalize();
- 	float dot = FVector::DotProduct(GetActorForwardVector(), dir);
- 	float acos = FMath::Acos(dot);
- 	float angle = FMath::RadiansToDegrees(acos);
- 	FVector cross = FVector::CrossProduct(GetActorForwardVector(), dir);
- 	float turnAngle = 0;
- 
- 	if (cross.Z < 0)
- 	{
- 		turnAngle = -angle;
- 	}
- 	else if (cross.Z > 0)
- 	{
- 		turnAngle = angle;
- 	}
- 	dirUI->ArrowRotation(turnAngle);
-
-//    	FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), ball->GetActorLocation());
-//    	float angle = Rotator.Yaw - GetControlRotation().Yaw;
-//    	dirUI->ArrowRotation(angle);
-
-//  	FVector dir = ball->GetActorLocation() - GetActorLocation();
-//  	dir.Normalize();
-//  	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);
-//  	float angle = rot.Yaw;
-//  	dirUI->ArrowRotation(angle);
-}
-
-void AVRPlayer::DetectBall(bool bValue)
-{
-	bIsGrabPressed = bValue;
-}
-
-void AVRPlayer::PressedGrabFire()
-{
-	if (bIsGrabPressed)
-	{
-		bisSweep = true;
-		FVector p = rightHand->GetComponentLocation() + rightHand->GetForwardVector() * 5000 * delta;
-		//FVector p = ball->GetActorLocation();
-		UGameplayStatics::PlaySound2D(GetWorld(), powerhitSound);
-		rightHand->SetWorldLocation(p);
-		widgetPointer_right->bShowDebug = false;
-	}
-	else
-	{
-		bisSweep = false;
-	}
-
-
-}
-
-void AVRPlayer::DrawSweep()
-{
-	FVector start = rightHand->GetComponentLocation();
-	FVector end = rightHand->GetComponentLocation();
-
-// 	DrawDebugSphere(GetWorld(), end,
-// 		20, 30, FColor::Cyan, false, -1, 0, 1);
+	//   	DrawDebugSphere(GetWorld(), end,
+	//   		20, 30, FColor::Cyan, false, -1, 0, 1);
 
 	FHitResult hitInfo;
 	FCollisionQueryParams param;
@@ -564,7 +371,201 @@ void AVRPlayer::DrawSweep()
 		if (compHit->IsSimulatingPhysics() == true)
 		{
 			FVector dist = hitInfo.ImpactPoint - GetActorLocation();
-			FVector Loc = RedGoalPost->GetActorLocation() + FVector(0,700,0);
+			FVector hitDir = compHit->GetComponentLocation() - hitInfo.ImpactPoint;
+			FVector Loc = dist + hitDir;
+			FVector force = compHit->GetMass() * Loc * 150;
+			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
+			bIsLeftFire = false;
+			UGameplayStatics::PlaySound2D(GetWorld(), hitSound);
+		}
+	}
+	if (bHitDome)
+	{
+		AActor* actor = hitDome.GetActor();
+		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
+			bIsLeftFire = false;
+	}
+}
+
+void AMainPlayer::RightHandMove(float deltatime)
+{
+	//FVector down = rightHand->GetUpVector() * -1;
+
+	FVector prediction = rightHand->GetComponentLocation() + rightHand->GetForwardVector()
+		* axis * speed * deltatime;
+
+	rightHand->SetWorldLocation(prediction);
+
+	if (state_R == 0)
+	{
+		UGameplayStatics::PlaySound2D(GetWorld(), fireSound);
+		state_R++;
+	}
+
+	Effect_R->SetVisibility(true);
+
+	FVector start = rightHand->GetComponentLocation();
+	FVector end = rightHand->GetComponentLocation();
+
+	//  	DrawDebugSphere(GetWorld(), end,
+	//  		20, 30, FColor::Cyan, false, -1, 0, 1);
+
+	FHitResult hitInfo;
+	FCollisionQueryParams param;
+	param.AddIgnoredActor(this);
+
+	FHitResult hitDome;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+
+	bool bHitball = GetWorld()->SweepSingleByChannel(hitInfo, start, end, FQuat::Identity, ECC_Visibility,
+		FCollisionShape::MakeSphere(20), param);
+	bool bHitDome = GetWorld()->SweepSingleByObjectType(hitDome, start, end, FQuat::Identity,
+		ECC_GameTraceChannel8, FCollisionShape::MakeSphere(20), params);
+
+	if (bHitball)
+	{
+		AActor* actor = hitInfo.GetActor();
+		ABall* hitActor = Cast<ABall>(actor);
+		if (hitActor != nullptr)
+		{
+			ball = hitActor;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
+
+			UPrimitiveComponent* compHit = hitInfo.GetComponent();
+		if (compHit->IsSimulatingPhysics() == true)
+		{
+			FVector dist = hitInfo.ImpactPoint - GetActorLocation();
+			FVector hitDir = compHit->GetComponentLocation() - hitInfo.ImpactPoint;
+			FVector Loc = dist + hitDir;
+			FVector force = compHit->GetMass() * Loc * 150;
+			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
+			bIsRightFire = false;
+			UGameplayStatics::PlaySound2D(GetWorld(), hitSound);
+		}
+	}
+	if (bHitDome)
+	{
+		AActor* actor = hitDome.GetActor();
+		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
+			bIsRightFire = false;
+	}
+}
+
+void AMainPlayer::ReturnLeftHand()
+{
+	bIsLeftFire = false;
+	Effect_L->SetVisibility(false);
+	state_L = 0;
+}
+
+void AMainPlayer::ReturnRightHand()
+{
+	bIsRightFire = false;
+	Effect_R->SetVisibility(false);
+	state_R = 0;
+}
+
+void AMainPlayer::ReturnMove(float deltatime, FVector startPos, FVector currPos, UStaticMeshComponent* handmesh)
+{
+	FVector returnPos = FMath::Lerp(currPos, startPos, deltatime * 30);
+	handmesh->SetWorldLocation(returnPos);
+}
+
+ void AMainPlayer::FindAngle()
+ {
+ 	FVector player = FVector(GetActorLocation().X, GetActorLocation().Y, 0);
+ 	FVector target = FVector(ball->GetActorLocation().X, ball->GetActorLocation().Y, 0);
+ 	FVector dir = target - player;
+ 	dir.Normalize();
+ 	float dot = FVector::DotProduct(GetActorForwardVector(), dir);
+ 	float acos = FMath::Acos(dot);
+ 	float angle = FMath::RadiansToDegrees(acos);
+ 	FVector cross = FVector::CrossProduct(GetActorForwardVector(), dir);
+ 	float turnAngle = 0;
+ 
+ 	if (cross.Z < 0)
+ 	{
+ 		turnAngle = -angle;
+ 	}
+ 	else if (cross.Z > 0)
+ 	{
+ 		turnAngle = angle;
+ 	}
+ 	dirUI->ArrowRotation(turnAngle);
+ 
+ 	//    	FRotator Rotator = UKismetMathLibrary::FindLookAtRotation(GetActorForwardVector(), ball->GetActorLocation());
+ 	//    	float angle = Rotator.Yaw - GetControlRotation().Yaw;
+ 	//    	dirUI->ArrowRotation(angle);
+ 
+ 	//  	FVector dir = ball->GetActorLocation() - GetActorLocation();
+ 	//  	dir.Normalize();
+ 	//  	FRotator rot = UKismetMathLibrary::MakeRotFromX(dir);
+ 	//  	float angle = rot.Yaw;
+ 	//  	dirUI->ArrowRotation(angle);
+ }
+
+void AMainPlayer::DetectBall(bool bValue)
+{
+	bIsGrabPressed = bValue;
+}
+
+void AMainPlayer::PressedGrabFire()
+{
+	if (bIsGrabPressed)
+	{
+		bisSweep = true;
+		FVector p = rightHand->GetComponentLocation() + rightHand->GetForwardVector() * 5000 * delta;
+		//FVector p = ball->GetActorLocation();
+		UGameplayStatics::PlaySound2D(GetWorld(), powerhitSound);
+		rightHand->SetWorldLocation(p);
+		widgetPointer_right->bShowDebug = false;
+	}
+	else
+	{
+		bisSweep = false;
+	}
+
+
+}
+
+void AMainPlayer::DrawSweep()
+{
+	FVector start = rightHand->GetComponentLocation();
+	FVector end = rightHand->GetComponentLocation();
+
+	// 	DrawDebugSphere(GetWorld(), end,
+	// 		20, 30, FColor::Cyan, false, -1, 0, 1);
+
+	FHitResult hitInfo;
+	FCollisionQueryParams param;
+	param.AddIgnoredActor(this);
+
+	FHitResult hitDome;
+	FCollisionQueryParams params;
+	params.AddIgnoredActor(this);
+
+	bool bHitball = GetWorld()->SweepSingleByChannel(hitInfo, start, end, FQuat::Identity, ECC_Visibility,
+		FCollisionShape::MakeSphere(20), param);
+	bool bHitDome = GetWorld()->SweepSingleByObjectType(hitDome, start, end, FQuat::Identity,
+		ECC_GameTraceChannel8, FCollisionShape::MakeSphere(20), params);
+
+	if (bHitball)
+	{
+		AActor* actor = hitInfo.GetActor();
+		ABall* hitActor = Cast<ABall>(actor);
+		if (hitActor != nullptr)
+		{
+			ball = hitActor;
+		}
+		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
+
+			UPrimitiveComponent* compHit = hitInfo.GetComponent();
+		if (compHit->IsSimulatingPhysics() == true)
+		{
+			FVector dist = hitInfo.ImpactPoint - GetActorLocation();
+			FVector Loc = RedGoalPost->GetActorLocation() + FVector(0, 700, 0);
 			FVector force = compHit->GetMass() * Loc * 300;
 			compHit->AddForceAtLocation(force, hitInfo.ImpactPoint);
 			bIsRightFire = false;
@@ -575,25 +576,25 @@ void AVRPlayer::DrawSweep()
 	{
 		AActor* actor = hitDome.GetActor();
 		UE_LOG(LogTemp, Warning, TEXT("hirInfo = %s"), *actor->GetName())
-		bIsRightFire = false;
+			bIsRightFire = false;
 	}
 }
 
-void AVRPlayer::ReleasedGrabFire()
+void AMainPlayer::ReleasedGrabFire()
 {
 	bIsGrabPressed = false;
 }
 
-void AVRPlayer::ResetPos()
+void AMainPlayer::ResetPos()
 {
-	SetActorLocation(orginPos+FVector(0,0,0));
+	SetActorLocation(orginPos + FVector(0, 0, 0));
 	leftstartPos = leftMotionController->GetComponentLocation();
 	rightstartPos = rightMotionController->GetComponentLocation();
 	rightHand->SetWorldLocation(rightstartPos);
 	leftHand->SetWorldLocation(leftstartPos);
 }
 
-void AVRPlayer::ReCenter()
+void AMainPlayer::ReCenter()
 {
 	UHeadMountedDisplayFunctionLibrary::ResetOrientationAndPosition();
 }
